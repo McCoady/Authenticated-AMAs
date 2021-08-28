@@ -11,9 +11,9 @@ checkWalletBalance()ss
 */
 var ethers = require("ethers");
 
-import IERC721 from ".../hardhat/artifacts/contracts/IERC721.sol/IERC721.json";
+//import IERC721 from ".../hardhat/artifacts/contracts/IERC721.sol/IERC721.json";
 
-const INFURA_ID = env("INFURA_ID");
+//const INFURA_ID = env("INFURA_ID");
 const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
 
 let currentMessage =
@@ -25,8 +25,11 @@ function seedMessage() {
 
 function verifySignedMessage(parent, args, context, info) {
   console.log("mutation", args);
-  //IP needed?
 
+  //Placeholder for testing
+  return { status: true, details: "You're a good boy :D" };
+
+  //IP needed?
 
   /* 
   
