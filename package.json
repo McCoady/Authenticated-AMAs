@@ -48,7 +48,8 @@
     "deploy-and-graph": "yarn deploy && yarn graph-ship-local",
     "theme": "yarn workspace @scaffold-eth/react-app theme",
     "watch-theme": "yarn workspace @scaffold-eth/react-app watch",
-    "backend": "cd packages/backend && node index"
+    "backend": "cd packages/backend && node index",
+    "dev": "cd packages/backend && nodemon index"
   },
   "workspaces": {
     "packages": [
