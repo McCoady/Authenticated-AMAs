@@ -11985,6 +11985,11 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
+jose@^3.15.5:
+  version "3.15.5"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-3.15.5.tgz#c253a39913d5c439a7a845d02cca1f9b778bba30"
+  integrity sha512-7ytNKAsyTBqBSrJNYePG0rwXq0+lxHIMdVvOnCi0B80Zmsy94XEkceX1PqAGWvT0Ko9XAIPhu7JyCF5L/9mfNQ==
+
 js-sha3@0.5.7, js-sha3@^0.5.7:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.5.7.tgz#0d4ffd8002d5333aabaf4a23eed2f6374c9f28e7"

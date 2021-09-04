@@ -13,6 +13,7 @@ const AuthSchema = gql`
   type SignedMessageStatus {
     status: Boolean!
     details: String!
+    authToken: String!
   }
 
   input SignedMessage {

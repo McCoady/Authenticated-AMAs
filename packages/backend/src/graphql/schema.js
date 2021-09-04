@@ -1,6 +1,6 @@
 const AuthSchema = require("./auth.graphql.js");
-const TestSchema = require("./test.graphql.js");
+const PostsSchema = require("./posts.graphql.js");
 
-const typeDefs = [AuthSchema, TestSchema];
+const typeDefs = [AuthSchema, PostsSchema];
 
 module.exports = typeDefs;

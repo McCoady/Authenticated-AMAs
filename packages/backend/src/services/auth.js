@@ -11,59 +11,78 @@ checkWalletBalance()ss
 */
 var ethers = require("ethers");
 
+const { generateSecret } = require("jose/util/generate_secret");
+const { EncryptJWT } = require("jose/jwt/encrypt");
+
 //import IERC721 from ".../hardhat/artifacts/contracts/IERC721.sol/IERC721.json";
 
-//const INFURA_ID = env("INFURA_ID");
-const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
+// const INFURA_ID = env("INFURA_ID");
+// const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
 
-let currentMessage =
-  "I am **ADDRESS** and I would like to sign in to YourDapp, plz! s";
+//Private key just for testing
+let secretKey = null;
+generateSecret("HS256").then(
+  (generatedSecret) => (secretKey = generatedSecret)
+);
 
 function seedMessage() {
-  return { message: currentMessage, date: String(Date.now()) };
+  const currentDate = String(Date.now());
+  let currentMessage = `I am **ADDRESS** and I would like to sign in to YourDapp, plz! This message was sent on ${currentDate}`;
+
+  return { message: currentMessage, date: currentDate };
 }
 
-function verifySignedMessage(parent, args, context, info) {
-  console.log("mutation", args);
-
+async function verifySignedMessage(parent, args, context, info) {
+  console.log("mutatiosn", args);
+  const { message, signature, address } = args;
   //Placeholder for testing
-  return { status: true, details: "You're a good boy :D" };
+
+  const jwt = await new EncryptJWT({ address: address })
+    .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
+    .setIssuedAt()
+    .setIssuer("authenticated::AMA")
+    .setExpirationTime("2h")
+    .encrypt(secretKey);
+
+  return {
+    status: true,
+    details: "You're a good boy :D",
+    authToken: jwt,
+  };
 
   //IP needed?
+  //const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
 
-  /* 
-  
-     const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-     console.log("POST from ip address:", ip, request.body.message)
-     if (request.body.message != currentMessage.replace("**ADDRESS**", request.body.address)) {
-         response.send(" ⚠️ Secret message mismatch!?! Please reload and try again. Sorry! 😅");
-     } else {
-         let recovered = ethers.utils.verifyMessage(request.body.message, request.body.signature)
- 
-         const userAddress = request.body.address;
- 
-         if (recovered == request.body.address) {
- 
-             const ropstenInfura = new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
- 
-             const tokenContract = new ethers.Contract(tokenAddress, IERC721.abi, ropstenInfura)
- 
-             const tokenBalance = await tokenContract.balanceOf(userAddress);
- 
-             const userHasTokens = tokenBalance && tokenBalance.gt(0);
- 
-             if (userHasTokens) {
-                 response.send(" 👍 successfully signed in as [" + userAddress + "]! Ask away!");
-                 //**Access hidden content**
-             } else {
-                 response.send(" 🤔 successfully signed in as [" + userAddress + "]... But you don't have the required token to participate.");
- 
-             }
- 
- 
-         }
-     }
- });*/
+  //console.log("POST from ip address:", ip, message);
+
+  // if (message !== currentMessage.replace("**ADDRESS**", address)) {
+  //   return { status: false, details: " ⚠️ Secret message mismatch!?! Please reload and try again. Sorry! 😅" };
+  // } else {
+  //     let recovered = ethers.utils.verifyMessage(message, signature)
+
+  //     const userAddress = address;
+
+  //     if (recovered == address) {
+
+  //         const ropstenInfura = new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
+
+  //         const tokenContract = new ethers.Contract(tokenAddress, IERC721.abi, ropstenInfura)
+
+  //         const tokenBalance = await tokenContract.balanceOf(userAddress);
+
+  //         const userHasTokens = tokenBalance && tokenBalance.gt(0);
+
+  //         if (userHasTokens) {
+  //             response.send(" 👍 successfully signed in as [" + userAddress + "]! Ask away!");
+  //             //**Access hidden content**
+  //         } else {
+  //             response.send(" 🤔 successfully signed in as [" + userAddress + "]... But you don't have the required token to participate.");
+
+  //         }
+
+  //     }
+
+  //}
 }
 
 const AuthResolver = {
