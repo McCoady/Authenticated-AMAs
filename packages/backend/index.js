@@ -91,21 +91,3 @@ const server = new ApolloServer({
 });
 
 server.listen().then(({ url }) => console.log(`Server is running on ${url}`));
-
-//TODO - Move prisma config to other file
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-
-async function testDatabase() {
-  await prisma.post.create({ data: {} });
-  const allLinks = await prisma.post.findMany();
-  console.log(allLinks);
-}
-
-testDatabase()
-  .catch((e) => {
-    console.error(e);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
