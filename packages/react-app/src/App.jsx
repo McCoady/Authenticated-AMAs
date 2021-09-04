@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useParams } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { StaticJsonRpcProvider, JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
@@ -26,6 +26,8 @@ import { Transactor } from "./helpers";
 // import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
 import { INFURA_ID, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import PostsView from "./views/PostsView";
+import PostView from "./views/PostView";
 
 import GraphqlSign from "./GraphqlSign";
 
@@ -246,8 +248,6 @@ function App(props) {
   const [loading, setLoading] = useState();
   const [result, setResult] = useState();
 
-  // NEW GRAPH QL CODE
-
   let display = "";
   if (result) {
     let possibleTxId = result.substr(-66);
@@ -318,10 +318,10 @@ function App(props) {
 
   return (
     <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
 
       {networkDisplay}
+
       {/*
 
       <BrowserRouter>
@@ -408,6 +408,45 @@ function App(props) {
 
       {display}
       <GraphqlSign injectedProvider={injectedProvider} userProvider={userProvider} address={address} />
+
+      <BrowserRouter>
+        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+          <Menu.Item key="/">
+            <Link
+              onClick={() => {
+                setRoute("/");
+              }}
+              to="/"
+            >
+              AMA
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/about">
+            <Link
+              onClick={() => {
+                setRoute("/about");
+              }}
+              to="/about"
+            >
+              About
+            </Link>
+          </Menu.Item>
+        </Menu>
+
+        <Switch>
+          <Route exact path="/about">
+            this is the about page
+          </Route>
+
+          <Route exact path="/post/:id">
+            <PostView />
+          </Route>
+
+          <Route path="/">
+            <PostsView />
+          </Route>
+        </Switch>
+      </BrowserRouter>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support:
        <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
