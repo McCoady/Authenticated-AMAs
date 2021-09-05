@@ -10,6 +10,7 @@ import { useUserAddress } from "eth-hooks";
 import { useQuery, gql } from "@apollo/client";
 import { formatEther, parseEther } from "@ethersproject/units";
 import { useThemeSwitcher } from "react-css-theme-switcher";
+import { ethers } from "ethers";
 import {
   useExchangePrice,
   useGasPrice,
@@ -31,17 +32,17 @@ import PostView from "./views/PostView";
 
 import GraphqlSign from "./GraphqlSign";
 
-import { ethers } from 'ethers';
-import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
-import FictionalFinance from "./contracts/FictionalFinance.abi.js";
-import InterestingIguanas from "./contracts/InterestingIguanas.abi.js"
+import DisplayUser from "./components/User/DisplayUser";
+
+// import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
+// import FictionalFinance from "./contracts/FictionalFinance.abi.js";
+// import InterestingIguanas from "./contracts/InterestingIguanas.abi.js"
 
 const axios = require("axios");
 
 const donutAddress = "0x6e6598Bd833c3ABf05dBb64c0FDfEd11e6881E26";
 const fictionalAddress = "0xD5BF303973Fef7B7821378E8aFE890BEd8b102f3";
 const iguanaAddress = "0x6845556EAbdB4a535B98746CB4A2ee4BF79C508e";
-
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -252,48 +253,44 @@ function App(props) {
       </div>
     );
   }
-  async function mintDonut() {
+  // async function mintDonut() {
+  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //   const signer = provider.getSigner();
+  //   const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer);
+  //   try {
+  //     const mint = await contract.mintToken();
+  //     await mint.wait();
+  //     console.log("1 Decentralised Donut minted");
+  //   } catch (error) {
+  //     console.error("Transaction Failed. Address already opted in?");
+  //   }
+  // }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner()
-    const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer)
-    try {
-      const mint = await contract.mintToken();
-      await mint.wait();
-      console.log('1 Decentralised Donut minted')
-    } catch (error) {
-      console.error('Transaction Failed. Address already opted in?')
-    }
-  }
+  // async function mintFictional() {
+  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //   const signer = provider.getSigner();
+  //   const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer);
+  //   try {
+  //     const mint = await contract.mintToken();
+  //     await mint.wait();
+  //     console.log("1 Fictional Finance Token minted");
+  //   } catch (error) {
+  //     console.error("Transaction Failed. Address already opted in?");
+  //   }
+  // }
 
-  async function mintFictional() {
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner()
-    const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer)
-    try {
-      const mint = await contract.mintToken();
-      await mint.wait();
-      console.log('1 Fictional Finance Token minted')
-    } catch (error) {
-      console.error('Transaction Failed. Address already opted in?')
-    }
-  }
-
-  async function mintIguana() {
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner()
-    const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer)
-    try {
-      const mint = await contract.mintToken();
-      await mint.wait();
-      console.log('1 Interesting Iguana minted')
-    } catch (error) {
-      console.error('Transaction Failed. Address already opted in?')
-    }
-  }
-
+  // async function mintIguana() {
+  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //   const signer = provider.getSigner();
+  //   const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer);
+  //   try {
+  //     const mint = await contract.mintToken();
+  //     await mint.wait();
+  //     console.log("1 Interesting Iguana minted");
+  //   } catch (error) {
+  //     console.error("Transaction Failed. Address already opted in?");
+  //   }
+  // }
 
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
@@ -307,7 +304,7 @@ function App(props) {
     let extraLink = "";
     if (possibleTxId.indexOf("0x") == 0) {
       extraLink = (
-        <a href={blockExplorer + "tx/" + possibleTxId} target="_blank">
+        <a href={blockExplorer + "tx/" + possibleTxId} target="_blank" rel="noreferrer">
           view transaction on etherscan
         </a>
       );
@@ -460,7 +457,7 @@ function App(props) {
 
       {display}
       <GraphqlSign injectedProvider={injectedProvider} userProvider={userProvider} address={address} />
-
+      <DisplayUser />
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
@@ -489,8 +486,7 @@ function App(props) {
                 setRoute("/faucet");
               }}
               to="/faucet"
-            >
-            </Link>
+            />
           </Menu.Item>
         </Menu>
 
@@ -505,9 +501,9 @@ function App(props) {
 
           <Route exact path="/faucet">
             <span>MINT</span>
-            <button onClick={mintDonut}>Mint A Decentralised Donut</button>
+            {/* <button onClick={mintDonut}>Mint A Decentralised Donut</button>
             <button onClick={mintFictional}>Mint A Fictional Finance Token</button>
-            <button onClick={mintIguana}>Mint An Interesting Iguana</button>
+            <button onClick={mintIguana}>Mint An Interesting Iguana</button> */}
           </Route>
 
           <Route path="/">
