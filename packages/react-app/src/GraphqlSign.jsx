@@ -1,6 +1,6 @@
 import React from "react";
 import { message as UiMessagePopUp, Button } from "antd";
-import { gql, useLazyQuery, useMutation } from "@apollo/client";
+import { gql, useLazyQuery, useMutation, useApolloClient } from "@apollo/client";
 
 const GET_MESSAGE_QUERY = gql`
   query getSeedMessage($seedMessageAddress: String!) {
@@ -22,13 +22,15 @@ const VERIFY_SIGNED_MESSAGE = gql`
 `;
 
 function GraphqlSign({ injectedProvider, userProvider, address }) {
+  const client = useApolloClient();
   const [verifySignedMessage, { data: result, loading: verifySignatureLoading }] = useMutation(VERIFY_SIGNED_MESSAGE, {
     onCompleted: data => {
       const authToken = data.verifySignedMessage.authToken;
-
-      console.log("authToken", authToken);
-
       sessionStorage.setItem("authToken", authToken);
+
+      client.refetchQueries({
+        include: ["GetUserInfo"],
+      });
     },
   });
 

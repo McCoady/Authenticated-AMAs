@@ -23,7 +23,7 @@ const CHANGE_ADDRESS_NAME = gql`
 function DisplayUser() {
   const { loading, error, data } = useQuery(GET_USER_INFO);
 
-  const [changeName] = useMutation(CHANGE_ADDRESS_NAME);
+  const [changeName] = useMutation(CHANGE_ADDRESS_NAME, { refetchQueries: ["GetUserInfo"] });
 
   if (data) {
     console.log("userData", data);
@@ -35,7 +35,7 @@ function DisplayUser() {
           onClick={() => {
             changeName({
               variables: {
-                newName: "NEwUsername",
+                newName: "NEwUsername22",
               },
             });
           }}
