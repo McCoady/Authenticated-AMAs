@@ -36,10 +36,20 @@ const PostsSchema = gql`
     post(id: ID!): Post
   }
 
-  # type Mutation{
-  #   addComment()
-  #   respondeComment()
-  # }
+  input CommentInput {
+    content: String!
+    postId: ID!
+  }
+
+  input PostInput {
+    title: String!
+  }
+
+  type Mutation {
+    addComment(commentInput: CommentInput!): Post
+    respondComment(commentInput: CommentInput!): Post
+    createPost(postInput: PostInput!): Post
+  }
 `;
 
 module.exports = PostsSchema;
