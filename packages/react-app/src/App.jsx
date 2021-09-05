@@ -34,9 +34,9 @@ import GraphqlSign from "./GraphqlSign";
 
 import DisplayUser from "./components/User/DisplayUser";
 
-// import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
-// import FictionalFinance from "./contracts/FictionalFinance.abi.js";
-// import InterestingIguanas from "./contracts/InterestingIguanas.abi.js"
+import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
+import FictionalFinance from "./contracts/FictionalFinance.abi.js";
+import InterestingIguanas from "./contracts/InterestingIguanas.abi.js";
 
 const axios = require("axios");
 
@@ -253,44 +253,44 @@ function App(props) {
       </div>
     );
   }
-  // async function mintDonut() {
-  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  //   const signer = provider.getSigner();
-  //   const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer);
-  //   try {
-  //     const mint = await contract.mintToken();
-  //     await mint.wait();
-  //     console.log("1 Decentralised Donut minted");
-  //   } catch (error) {
-  //     console.error("Transaction Failed. Address already opted in?");
-  //   }
-  // }
+  async function mintDonut() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer);
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log("1 Decentralised Donut minted");
+    } catch (error) {
+      console.error("Transaction Failed. Address already opted in?");
+    }
+  }
 
-  // async function mintFictional() {
-  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  //   const signer = provider.getSigner();
-  //   const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer);
-  //   try {
-  //     const mint = await contract.mintToken();
-  //     await mint.wait();
-  //     console.log("1 Fictional Finance Token minted");
-  //   } catch (error) {
-  //     console.error("Transaction Failed. Address already opted in?");
-  //   }
-  // }
+  async function mintFictional() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer);
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log("1 Fictional Finance Token minted");
+    } catch (error) {
+      console.error("Transaction Failed. Address already opted in?");
+    }
+  }
 
-  // async function mintIguana() {
-  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  //   const signer = provider.getSigner();
-  //   const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer);
-  //   try {
-  //     const mint = await contract.mintToken();
-  //     await mint.wait();
-  //     console.log("1 Interesting Iguana minted");
-  //   } catch (error) {
-  //     console.error("Transaction Failed. Address already opted in?");
-  //   }
-  // }
+  async function mintIguana() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer);
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log("1 Interesting Iguana minted");
+    } catch (error) {
+      console.error("Transaction Failed. Address already opted in?");
+    }
+  }
 
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
@@ -487,6 +487,7 @@ function App(props) {
               }}
               to="/faucet"
             />
+            faucet
           </Menu.Item>
         </Menu>
 
@@ -501,9 +502,15 @@ function App(props) {
 
           <Route exact path="/faucet">
             <span>MINT</span>
-            {/* <button onClick={mintDonut}>Mint A Decentralised Donut</button>
-            <button onClick={mintFictional}>Mint A Fictional Finance Token</button>
-            <button onClick={mintIguana}>Mint An Interesting Iguana</button> */}
+            <button type="button" onClick={mintDonut}>
+              Mint A Decentralised Donut
+            </button>
+            <button type="button" onClick={mintFictional}>
+              Mint A Fictional Finance Token
+            </button>
+            <button type="button" onClick={mintIguana}>
+              Mint An Interesting Iguana
+            </button>
           </Route>
 
           <Route path="/">
