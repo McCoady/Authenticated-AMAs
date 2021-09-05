@@ -7,13 +7,13 @@ const AuthSchema = gql`
   }
 
   type Query {
-    seedMessage: SeedMessage
+    seedMessage(address: String!): SeedMessage
   }
 
   type SignedMessageStatus {
     status: Boolean!
-    details: String!
-    authToken: String!
+    details: String
+    authToken: String
   }
 
   input SignedMessage {

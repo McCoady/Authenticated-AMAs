@@ -1,17 +1,21 @@
 const Prisma = require("../prisma");
 const _ = require("lodash");
+const { verifyAuthToken } = require("../authToken/authToken");
+const PostsSchema = require("../graphql/posts.graphql");
+
+const INCLUDE_ALL_POST_FIELDS = {
+  creator: true,
+  requiredTokens: true,
+  comments: {
+    include: {
+      creator: true,
+    },
+  },
+};
 
 async function posts() {
   const posts = await Prisma.post.findMany({
-    include: {
-      creator: true,
-      requiredTokens: true,
-      comments: {
-        include: {
-          creator: true,
-        },
-      },
-    },
+    include: INCLUDE_ALL_POST_FIELDS,
   });
 
   return posts.map((post) => ({
@@ -40,15 +44,7 @@ async function post(parent, { id }, context, info) {
     where: {
       id: Number(id),
     },
-    include: {
-      creator: true,
-      requiredTokens: true,
-      comments: {
-        include: {
-          creator: true,
-        },
-      },
-    },
+    include: INCLUDE_ALL_POST_FIELDS,
   });
 
   return {
@@ -57,10 +53,56 @@ async function post(parent, { id }, context, info) {
   };
 }
 
+async function addComment(parent, { commentInput }, { authToken }, info) {
+  const { address } = await verifyAuthToken(authToken);
+
+  //TODO - Verify if address have the required tokens before creating
+
+  const { content, postId } = commentInput;
+
+  const post = await Prisma.post.update({
+    where: { id: Number(postId) },
+    data: {
+      comments: {
+        create: [
+          {
+            content,
+            creator: {
+              connectOrCreate: {
+                where: {
+                  address: address,
+                },
+                create: {
+                  address,
+                  name: "unknown",
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+    include: INCLUDE_ALL_POST_FIELDS,
+  });
+
+  return {
+    ...post,
+    comments: unflatCommentsArray(post.comments),
+  };
+}
+
+async function respondComment(parent, { content }, { authToken }, info) {
+  const { address } = await verifyAuthToken(authToken);
+}
+
 const PostsResolver = {
   Query: {
     posts,
     post,
+  },
+  Mutation: {
+    addComment,
+    respondComment,
   },
 };
 

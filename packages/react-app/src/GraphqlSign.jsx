@@ -3,10 +3,10 @@ import { message as UiMessagePopUp, Button } from "antd";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
 
 const GET_MESSAGE_QUERY = gql`
-  query ExampleQuery {
-    seedMessage {
-      date
+  query getSeedMessage($seedMessageAddress: String!) {
+    seedMessage(address: $seedMessageAddress) {
       message
+      date
     }
   }
 `;
@@ -16,12 +16,21 @@ const VERIFY_SIGNED_MESSAGE = gql`
     verifySignedMessage(signedMessage: $verifySignedMessageSignedMessage) {
       status
       details
+      authToken
     }
   }
 `;
 
 function GraphqlSign({ injectedProvider, userProvider, address }) {
-  const [verifySignedMessage, { data: result, loading: verifySignatureLoading }] = useMutation(VERIFY_SIGNED_MESSAGE);
+  const [verifySignedMessage, { data: result, loading: verifySignatureLoading }] = useMutation(VERIFY_SIGNED_MESSAGE, {
+    onCompleted: data => {
+      const authToken = data.verifySignedMessage.authToken;
+
+      console.log("authToken", authToken);
+
+      sessionStorage.setItem("authToken", authToken);
+    },
+  });
 
   const [getMessage, { loading: getMesageloading, refetch }] = useLazyQuery(GET_MESSAGE_QUERY, {
     onCompleted: async data => {
@@ -32,9 +41,7 @@ function GraphqlSign({ injectedProvider, userProvider, address }) {
       // length 1 for testing
       if (message.length > 1) {
         const sig = await userProvider.send("personal_sign", [message, address]);
-
         verifySignedMessage({ variables: { verifySignedMessageSignedMessage: { address, message, signature: sig } } });
-
         console.log("signature graphql", sig);
       } else {
         UiMessagePopUp.error(" Sorry, the server is overloaded. 🧯🚒🔥");
@@ -46,25 +53,6 @@ function GraphqlSign({ injectedProvider, userProvider, address }) {
   });
 
   if (result && result.verifySignedMessage.status) {
-    // Not sure what this does
-
-    // let possibleTxId = result.substr(-66);
-    // console.log("possibleTxId", possibleTxId);
-    // let extraLink = "";
-    // if (possibleTxId.indexOf("0x") == 0) {
-    //   extraLink = (
-    //     <a href={blockExplorer + "tx/" + possibleTxId} target="_blank">
-    //       view transaction on etherscan
-    //     </a>
-    //   );
-    // } else {
-    //   possibleTxId = "";
-    // }
-
-    //   <div style={{ marginTop: 32 }}>
-    //   {result.replace(possibleTxId, "")} {extraLink}
-    // </div>
-
     return <div style={{ marginTop: 32 }}>{result.verifySignedMessage.details}</div>;
   }
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
@@ -76,7 +64,7 @@ function GraphqlSign({ injectedProvider, userProvider, address }) {
         style={{ marginTop: 32 }}
         type="primary"
         onClick={() => {
-          getMessage();
+          getMessage({ variables: { seedMessageAddress: address } });
         }}
       >
         <span style={{ marginRight: 8 }}>🔏</span> sign a message with your ethereum wallet graphql
