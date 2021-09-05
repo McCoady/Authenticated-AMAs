@@ -31,7 +31,17 @@ import PostView from "./views/PostView";
 
 import GraphqlSign from "./GraphqlSign";
 
+import { ethers } from 'ethers';
+import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
+import FictionalFinance from "./contracts/FictionalFinance.abi.js";
+import InterestingIguanas from "./contracts/InterestingIguanas.abi.js"
+
 const axios = require("axios");
+
+const donutAddress = "0x6e6598Bd833c3ABf05dBb64c0FDfEd11e6881E26";
+const fictionalAddress = "0xD5BF303973Fef7B7821378E8aFE890BEd8b102f3";
+const iguanaAddress = "0x6845556EAbdB4a535B98746CB4A2ee4BF79C508e";
+
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -56,7 +66,7 @@ const axios = require("axios");
 const serverUrl = "http://localhost:49832/";
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.mainnet; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.ropsten; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -242,6 +252,48 @@ function App(props) {
       </div>
     );
   }
+  async function mintDonut() {
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner()
+    const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer)
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log('1 Decentralised Donut minted')
+    } catch (error) {
+      console.error('Transaction Failed. Address already opted in?')
+    }
+  }
+
+  async function mintFictional() {
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner()
+    const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer)
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log('1 Fictional Finance Token minted')
+    } catch (error) {
+      console.error('Transaction Failed. Address already opted in?')
+    }
+  }
+
+  async function mintIguana() {
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner()
+    const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer)
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log('1 Interesting Iguana minted')
+    } catch (error) {
+      console.error('Transaction Failed. Address already opted in?')
+    }
+  }
+
 
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
@@ -431,6 +483,15 @@ function App(props) {
               About
             </Link>
           </Menu.Item>
+          <Menu.Item key="/faucet">
+            <Link
+              onClick={() => {
+                setRoute("/faucet");
+              }}
+              to="/faucet"
+            >
+            </Link>
+          </Menu.Item>
         </Menu>
 
         <Switch>
@@ -440,6 +501,13 @@ function App(props) {
 
           <Route exact path="/post/:id">
             <PostView />
+          </Route>
+
+          <Route exact path="/faucet">
+            <span>MINT</span>
+            <button onClick={mintDonut}>Mint A Decentralised Donut</button>
+            <button onClick={mintFictional}>Mint A Fictional Finance Token</button>
+            <button onClick={mintIguana}>Mint An Interesting Iguana</button>
           </Route>
 
           <Route path="/">
