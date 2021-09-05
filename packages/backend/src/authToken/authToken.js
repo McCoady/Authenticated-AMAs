@@ -34,30 +34,43 @@ const INFURA_ID = process.env.INFURA_ID;
 const networkLink = "https://ropsten.infura.io/v3/";
 
 async function verifyIfAddressHasTokens({ address }) {
-  const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
+  const tokensAddress = [
+    "0x2414F22e3a423DD63d085dD0d667334F060d733d",
+    "0x2414F22e3a423DD63d085dD0d667334F060d733d",
+  ];
   console.log("verifyIfAddressHasTokens");
 
   const infuraProvider = new ethers.providers.StaticJsonRpcProvider(
     networkLink + INFURA_ID
   );
-  const tokenContract = new ethers.Contract(
-    tokenAddress,
-    IERC721.abi,
-    infuraProvider
-  );
 
-  const tokenBalance = await tokenContract.balanceOf(address);
+  const tokensBalancePromises = tokensAddress.map(async (tokenAddress) => {
+    const tokenContract = new ethers.Contract(
+      tokenAddress,
+      IERC721.abi,
+      infuraProvider
+    );
+    const tokenBalance = await tokenContract.balanceOf(address);
 
-  console.log("tokenAddress", tokenAddress);
-  console.log("user address", address);
-  console.log("tokenBalance", tokenBalance.toString());
+    console.log("tokenAddress", tokenAddress);
+    console.log("user address", address);
+    console.log("tokenBalance", tokenBalance.toString());
 
-  const userHasTokens = tokenBalance && tokenBalance.gt(0);
-  if (userHasTokens) {
-    return true;
-  } else {
-    return false;
-  }
+    return tokenBalance;
+  });
+
+  const tokensBalance = await Promise.all(tokensBalancePromises);
+
+  console.log("tokensBalance", tokensBalance);
+
+  const userHasTokens = tokensBalance.reduce((hasAllTokens, tokenBalance) => {
+    const userHasToken = tokenBalance && tokenBalance.gt(0);
+    return hasAllTokens && userHasToken;
+  }, true);
+
+  console.log("userHasToken", userHasTokens);
+
+  return userHasTokens;
 }
 
 module.exports = { createAuthToken, verifyAuthToken, verifyIfAddressHasTokens };
