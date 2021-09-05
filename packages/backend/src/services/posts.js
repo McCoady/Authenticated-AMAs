@@ -55,19 +55,39 @@ async function post(parent, { id }, context, info) {
   };
 }
 
+function getPostRequiredTokens(post) {
+  const tokensAddress = post.requiredTokens.map((token) => token.address);
+  return tokensAddress;
+}
+
+async function verifyIfAddressCanComment({ address, postId }) {
+  const post = await Prisma.post.findUnique({
+    where: {
+      id: Number(postId),
+    },
+    include: { requiredTokens: true, creator: true },
+  });
+
+  const tokensAddress = getPostRequiredTokens(post);
+  const creatorAddress = post.creator.address;
+
+  if (address === creatorAddress) return true;
+
+  const hasTokens = await verifyIfAddressHasTokens({ address, tokensAddress });
+  return hasTokens;
+}
+
 async function addComment(parent, { commentInput }, { authToken }, info) {
   const { address } = await verifyAuthToken(authToken);
 
   console.log("commentInput", commentInput);
-
-  //If its the creator of the AMA dont need to verify if it has the tokens
-  const hasTokens = await verifyIfAddressHasTokens({ address });
-  console.log("hasTokens", hasTokens);
-  if (!hasTokens) throw "Sorry, you dont have the necessary tokens!";
-
   const { content, postId } = commentInput;
 
-  const post = await Prisma.post.update({
+  const canComment = await verifyIfAddressCanComment({ address, postId });
+  console.log("canComment", canComment);
+  if (!canComment) throw "Sorry, you dont have the necessary tokens!";
+
+  const modifiedPost = await Prisma.post.update({
     where: { id: Number(postId) },
     data: {
       comments: {
@@ -93,8 +113,8 @@ async function addComment(parent, { commentInput }, { authToken }, info) {
   });
 
   return {
-    ...post,
-    comments: unflatCommentsArray(post.comments),
+    ...modifiedPost,
+    comments: unflatCommentsArray(modifiedPost.comments),
   };
 }
 
@@ -105,6 +125,11 @@ async function respondComment(
   info
 ) {
   const { address } = await verifyAuthToken(authToken);
+
+  const canComment = await verifyIfAddressCanComment({ address, postId });
+  console.log("canRespond", canComment);
+
+  if (!canComment) throw "Sorry, you dont have the necessary tokens!";
 
   const post = await Prisma.comment.update({
     where: { id: Number(respondingTo) },

@@ -33,12 +33,9 @@ const IERC721 = require("../../../hardhat/artifacts/contracts/IERC721.sol/IERC72
 const INFURA_ID = process.env.INFURA_ID;
 const networkLink = "https://ropsten.infura.io/v3/";
 
-async function verifyIfAddressHasTokens({ address }) {
-  const tokensAddress = [
-    "0x2414F22e3a423DD63d085dD0d667334F060d733d",
-    "0x2414F22e3a423DD63d085dD0d667334F060d733d",
-  ];
+async function verifyIfAddressHasTokens({ address, tokensAddress }) {
   console.log("verifyIfAddressHasTokens");
+  console.log(tokensAddress);
 
   const infuraProvider = new ethers.providers.StaticJsonRpcProvider(
     networkLink + INFURA_ID
