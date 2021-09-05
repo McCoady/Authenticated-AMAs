@@ -41,13 +41,19 @@ const PostsSchema = gql`
     postId: ID!
   }
 
+  input TokenInput {
+    address: String!
+    name: String
+  }
+
   input PostInput {
     title: String!
+    requiredTokens: [TokenInput!]!
   }
 
   type Mutation {
     addComment(commentInput: CommentInput!): Post
-    respondComment(commentInput: CommentInput!): Post
+    respondComment(commentInput: CommentInput!, respondingTo: ID!): Post
     createPost(postInput: PostInput!): Post
   }
 `;

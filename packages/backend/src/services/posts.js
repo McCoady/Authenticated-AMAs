@@ -60,6 +60,7 @@ async function addComment(parent, { commentInput }, { authToken }, info) {
 
   console.log("commentInput", commentInput);
 
+  //If its the creator of the AMA dont need to verify if it has the tokens
   const hasTokens = await verifyIfAddressHasTokens({ address });
   console.log("hasTokens", hasTokens);
   if (!hasTokens) throw "Sorry, you dont have the necessary tokens!";
@@ -97,8 +98,85 @@ async function addComment(parent, { commentInput }, { authToken }, info) {
   };
 }
 
-async function respondComment(parent, { content }, { authToken }, info) {
+async function respondComment(
+  parent,
+  { commentInput: { content, postId }, respondingTo },
+  { authToken },
+  info
+) {
   const { address } = await verifyAuthToken(authToken);
+
+  const post = await Prisma.comment.update({
+    where: { id: Number(respondingTo) },
+    data: {
+      subcomments: {
+        create: [
+          {
+            content,
+            post: {
+              connect: {
+                id: Number(postId),
+              },
+            },
+            creator: {
+              connectOrCreate: {
+                where: {
+                  address: address,
+                },
+                create: {
+                  address,
+                  name: "unknown",
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function createPost(
+  parent,
+  { postInput: { title, requiredTokens } },
+  { authToken },
+  info
+) {
+  const { address } = await verifyAuthToken(authToken);
+
+  const tokensQuery = requiredTokens.map(
+    ({ address: tokenAddress, name: tokenName }) => ({
+      where: { address: tokenAddress },
+      create: {
+        address: tokenAddress,
+        name: tokenName,
+      },
+    })
+  );
+
+  const newPost = await Prisma.post.create({
+    data: {
+      title,
+      expiration: new Date(Date.now() + 86400000 * 3),
+      creator: {
+        connectOrCreate: {
+          where: {
+            address,
+          },
+          create: {
+            address,
+            name: "unknown",
+          },
+        },
+      },
+      requiredTokens: {
+        connectOrCreate: tokensQuery,
+      },
+    },
+    include: INCLUDE_ALL_POST_FIELDS,
+  });
+
+  return newPost;
 }
 
 const PostsResolver = {
@@ -109,6 +187,7 @@ const PostsResolver = {
   Mutation: {
     addComment,
     respondComment,
+    createPost,
   },
 };
 
