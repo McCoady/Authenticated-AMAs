@@ -1,5 +1,7 @@
 var ethers = require("ethers");
-const { createAuthToken } = require("../authToken/authToken");
+const Prisma = require("../prisma");
+
+const { createAuthToken, verifyAuthToken } = require("../authToken/authToken");
 
 const messagesSent = {};
 
@@ -45,12 +47,37 @@ async function verifySignedMessage(parent, args, context, info) {
   }
 }
 
+async function changeAddressName(parent, { name }, { authToken }, info) {
+  const { address } = await verifyAuthToken(authToken);
+
+  const user = await Prisma.user.update({
+    where: { address },
+    data: {
+      name,
+    },
+  });
+
+  return user;
+}
+
+async function user(parent, args, { authToken }, info) {
+  const { address } = await verifyAuthToken(authToken);
+
+  const user = await Prisma.user.findUnique({
+    where: { address },
+  });
+
+  return user;
+}
+
 const AuthResolver = {
   Query: {
     seedMessage,
+    user,
   },
   Mutation: {
     verifySignedMessage,
+    changeAddressName,
   },
 };
 

@@ -8,6 +8,7 @@ const AuthSchema = gql`
 
   type Query {
     seedMessage(address: String!): SeedMessage
+    user: User
   }
 
   type SignedMessageStatus {
@@ -24,6 +25,7 @@ const AuthSchema = gql`
 
   type Mutation {
     verifySignedMessage(signedMessage: SignedMessage!): SignedMessageStatus
+    changeAddressName(name: String!): User
   }
 `;
 
