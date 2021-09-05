@@ -1,7 +1,9 @@
 const Prisma = require("../prisma");
 const _ = require("lodash");
-const { verifyAuthToken } = require("../authToken/authToken");
-const PostsSchema = require("../graphql/posts.graphql");
+const {
+  verifyAuthToken,
+  verifyIfAddressHasTokens,
+} = require("../authToken/authToken");
 
 const INCLUDE_ALL_POST_FIELDS = {
   creator: true,
@@ -56,7 +58,11 @@ async function post(parent, { id }, context, info) {
 async function addComment(parent, { commentInput }, { authToken }, info) {
   const { address } = await verifyAuthToken(authToken);
 
-  //TODO - Verify if address have the required tokens before creating
+  console.log("commentInput", commentInput);
+
+  const hasTokens = await verifyIfAddressHasTokens({ address });
+  console.log("hasTokens", hasTokens);
+  if (!hasTokens) throw "Sorry, you dont have the necessary tokens!";
 
   const { content, postId } = commentInput;
 
