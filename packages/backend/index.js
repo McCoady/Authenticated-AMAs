@@ -1,4 +1,4 @@
-var express = require("express");
+require("dotenv").config();
 
 const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./src/graphql/schema");

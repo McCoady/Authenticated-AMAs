@@ -1,6 +1,7 @@
 const { generateSecret } = require("jose/util/generate_secret");
 const { EncryptJWT } = require("jose/jwt/encrypt");
 const { jwtDecrypt } = require("jose/jwt/decrypt");
+const ethers = require("ethers");
 
 //Private key just for testing
 let secretKey = null;
@@ -28,22 +29,27 @@ async function verifyAuthToken(jwt) {
   return payload;
 }
 
-//import IERC721 from ".../hardhat/artifacts/contracts/IERC721.sol/IERC721.json";
+const IERC721 = require("../../../hardhat/artifacts/contracts/IERC721.sol/IERC721.json");
+const INFURA_ID = process.env.INFURA_ID;
 
-// const INFURA_ID = env("INFURA_ID");
-// const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
+async function verifyIfAddressHasTokens({ address }) {
+  const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
 
-async function verifyWithAddressHasTokens() {
-  //         const ropstenInfura = new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
-  //         const tokenContract = new ethers.Contract(tokenAddress, IERC721.abi, ropstenInfura)
-  //         const tokenBalance = await tokenContract.balanceOf(userAddress);
-  //         const userHasTokens = tokenBalance && tokenBalance.gt(0);
-  //         if (userHasTokens) {
-  //             response.send(" 👍 successfully signed in as [" + userAddress + "]! Ask away!");
-  //             //**Access hidden content**
-  //         } else {
-  //             response.send(" 🤔 successfully signed in as [" + userAddress + "]... But you don't have the required token to participate.");
-  //         }
+  const ropstenInfura = new ethers.providers.StaticJsonRpcProvider(
+    "https://mainnet.infura.io/v3/" + INFURA_ID
+  );
+  const tokenContract = new ethers.Contract(
+    tokenAddress,
+    IERC721.abi,
+    ropstenInfura
+  );
+  const tokenBalance = await tokenContract.balanceOf(address);
+  const userHasTokens = tokenBalance && tokenBalance.gt(0);
+  if (!userHasTokens) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 module.exports = { createAuthToken, verifyAuthToken };
