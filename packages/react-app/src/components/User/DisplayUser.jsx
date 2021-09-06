@@ -1,10 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useRef } from "react";
-import { gql, useQuery, useMutation } from "@apollo/client";
-import { Spin, Typography } from "antd";
+import { gql, useMutation } from "@apollo/client";
+import { Typography, Spin } from "antd";
 import { HighlightOutlined } from "@ant-design/icons";
+import Address from "../Address";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const GET_USER_INFO = gql`
   query GetUserInfo {
@@ -24,16 +25,16 @@ const CHANGE_ADDRESS_NAME = gql`
   }
 `;
 
-function DisplayUser() {
+function DisplayUser({ mainnetProvider, blockExplorer, user }) {
   const typedString = useRef("");
-  const { loading, data, error } = useQuery(GET_USER_INFO);
-  const [changeName] = useMutation(CHANGE_ADDRESS_NAME, { refetchQueries: ["GetUserInfo"] });
+
+  const [changeName, { loading }] = useMutation(CHANGE_ADDRESS_NAME, { refetchQueries: ["GetUserInfo"] });
 
   if (loading) return <Spin />;
 
-  if (data) {
+  if (user) {
     return (
-      <section style={{ marginLeft: 300, marginRight: 300, marginTop: 15 }}>
+      <section>
         <Title
           editable={{
             icon: <HighlightOutlined />,
@@ -51,13 +52,20 @@ function DisplayUser() {
             },
           }}
         >
-          {data.user.name}
+          {user.name}
         </Title>
+        <Address
+          address={user.address}
+          ensProvider={mainnetProvider}
+          blockExplorer={blockExplorer}
+          size="long"
+          fontSize={16}
+        />
       </section>
     );
   }
 
-  return <Title level={3}>Not connected</Title>;
+  return null;
 }
 
 export default DisplayUser;

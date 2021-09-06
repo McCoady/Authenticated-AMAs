@@ -21,7 +21,7 @@ const VERIFY_SIGNED_MESSAGE = gql`
   }
 `;
 
-function GraphqlSign({ injectedProvider, userProvider, address }) {
+function GraphqlSign({ injectedProvider, userProvider, address, web3Modal, loadWeb3Modal, logoutOfWeb3Modal }) {
   const client = useApolloClient();
   const [verifySignedMessage, { data: result, loading: verifySignatureLoading }] = useMutation(VERIFY_SIGNED_MESSAGE, {
     onCompleted: data => {
@@ -47,11 +47,26 @@ function GraphqlSign({ injectedProvider, userProvider, address }) {
   });
 
   if (result && result.verifySignedMessage.status) {
-    return <div style={{ marginTop: 32 }}>{result.verifySignedMessage.details}</div>;
+    return null;
   }
+
+  if (web3Modal && !web3Modal.cachedProvider) {
+    return (
+      <Button
+        style={{ marginTop: 32 }}
+        type="primary"
+        onClick={() => {
+          loadWeb3Modal();
+        }}
+      >
+        <span style={{ marginRight: 8 }}>🔏</span>Connect your wallet please
+      </Button>
+    );
+  }
+
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
-  if (isSigner) {
+  if (isSigner)
     return (
       <Button
         loading={getMesageloading || verifySignatureLoading}
@@ -61,10 +76,10 @@ function GraphqlSign({ injectedProvider, userProvider, address }) {
           getMessage({ variables: { seedMessageAddress: address } });
         }}
       >
-        <span style={{ marginRight: 8 }}>🔏</span> sign a message with your ethereum wallet graphql
+        <span style={{ marginRight: 8 }}>🔏</span>Sign a message with your ethereum wallet
       </Button>
     );
-  }
+
   return null;
 }
 
