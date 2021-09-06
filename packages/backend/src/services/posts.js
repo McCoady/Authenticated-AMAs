@@ -17,6 +17,11 @@ const INCLUDE_ALL_POST_FIELDS = {
 
 async function posts() {
   const posts = await Prisma.post.findMany({
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
     include: INCLUDE_ALL_POST_FIELDS,
   });
 
