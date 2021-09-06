@@ -1,16 +1,20 @@
 import React from "react";
-import { PageHeader } from "antd";
+import { PageHeader, Space } from "antd";
+import ThemeSwitcher from "./ThemeSwitch";
 
 // displays a page header
 
-export default function Header() {
+export default function Header({ networkDisplay }) {
   return (
-    <a href="/" >
-      <PageHeader
-        title="🎙 Authenticated AMAs"
-        subTitle="Sign a message with your wallet to log in..."
-        style={{ cursor: "pointer" }}
-      />
-    </a>
+    <PageHeader
+      title={<a href="/">🎙 Authenticated AMAs</a>}
+      subTitle="Sign a message with your wallet to log in..."
+      extra={[
+        <Space>
+          {networkDisplay}
+          <ThemeSwitcher />
+        </Space>,
+      ]}
+    />
   );
 }
