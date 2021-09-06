@@ -22,7 +22,7 @@ import {
   useExternalContractLoader,
   useOnBlock,
 } from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
+import { Header, Account, SimpleCard, ThemeSwitch } from "./components";
 import { Transactor } from "./helpers";
 // import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
@@ -486,13 +486,22 @@ function App(props) {
               }}
               to="/faucet"
             />
-            faucet
+            Mint Test Tokens
           </Menu.Item>
         </Menu>
 
         <Switch>
           <Route exact path="/about">
-            this is the about page
+            <div style={{ marginLeft: 20, marginTop: 12 }}>
+              <SimpleCard style={{ paddingLeft: 12, marginTop: 12 }} />
+            </div>
+            <p style={{ marginTop: 24, fontSize: 16 }}>Authenticated AMAs offer a simple way for builders/creators to host AMAs with members of their community. 🔊</p>
+
+            <p style={{ marginTop: 12, fontSize: 16 }}>  AMA hosts can specify the token required to take part in the AMA so they can be sure the participants are shareholders in the project. 👨‍👩‍👧‍👦</p>
+
+            <p style={{ marginTop: 12, fontSize: 16 }}>  Participation requires only that users sign a message confirming their ethereum address, this way nobody has to pay gas to host or participate in an Authenticated AMA. 💸</p>
+
+            <p style={{ marginTop: 12, fontSize: 16 }}>  Authenticated AMAs are a great way to give back to your community and ensure that you are interacting with real community members. 🔎</p>
           </Route>
 
           <Route exact path="/post/:id">
@@ -500,16 +509,31 @@ function App(props) {
           </Route>
 
           <Route exact path="/faucet">
-            <span>MINT</span>
-            <button type="button" onClick={mintDonut}>
-              Mint A Decentralised Donut
-            </button>
-            <button type="button" onClick={mintFictional}>
-              Mint A Fictional Finance Token
-            </button>
-            <button type="button" onClick={mintIguana}>
-              Mint An Interesting Iguana
-            </button>
+            <p style={{ marginTop: 24, fontSize: 20 }}>Mint some dummy ERC721 tokens to test out the site. 🔨</p>
+            <p>
+              <Button
+                loading={loading}
+                style={{ marginTop: 32 }}
+                type="primary" onClick={mintDonut}>
+                Mint A Decentralised Donut 🍩
+              </Button>
+            </p>
+            <p><Button
+              loading={loading}
+              style={{ marginTop: 32 }}
+              type="primary"
+              onClick={mintFictional}>
+              Mint A Fictional Finance Token 💰
+            </Button></p>
+            <p><Button
+              loading={loading}
+              style={{ marginTop: 32 }}
+              type="primary"
+              onClick={mintIguana}>
+              Mint An Interesting Iguana 🦎
+            </Button></p>
+
+
           </Route>
 
           <Route path="/">

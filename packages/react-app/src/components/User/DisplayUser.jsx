@@ -33,7 +33,7 @@ function DisplayUser() {
 
   if (data) {
     return (
-      <section>
+      <section style={{ marginLeft: 300, marginRight: 300, marginTop: 15 }}>
         <Title
           editable={{
             icon: <HighlightOutlined />,
