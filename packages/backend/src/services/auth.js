@@ -65,6 +65,22 @@ async function user(parent, args, { authToken }, info) {
 
   const user = await Prisma.user.findUnique({
     where: { address },
+    rejectOnNotFound: false,
+  });
+
+  if (!user) return await createDefaultUser(address);
+
+  return user;
+}
+
+async function createDefaultUser(address) {
+  //Add resolver to ens name here
+
+  const user = await Prisma.user.create({
+    data: {
+      address,
+      name: "unknown",
+    },
   });
 
   return user;
