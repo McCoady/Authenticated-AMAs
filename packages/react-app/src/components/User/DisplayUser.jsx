@@ -1,6 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from "react";
+import React, { useRef } from "react";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { Spin, Typography } from "antd";
+import { HighlightOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const GET_USER_INFO = gql`
   query GetUserInfo {
@@ -21,32 +25,39 @@ const CHANGE_ADDRESS_NAME = gql`
 `;
 
 function DisplayUser() {
-  const { loading, error, data } = useQuery(GET_USER_INFO);
-
+  const typedString = useRef("");
+  const { loading, data, error } = useQuery(GET_USER_INFO);
   const [changeName] = useMutation(CHANGE_ADDRESS_NAME, { refetchQueries: ["GetUserInfo"] });
 
+  if (loading) return <Spin />;
+
   if (data) {
-    console.log("userData", data);
     return (
       <section>
-        <h1>{data.user.name}</h1>
-        <button
-          type="button"
-          onClick={() => {
-            changeName({
-              variables: {
-                newName: "NEwUsername22",
-              },
-            });
+        <Title
+          editable={{
+            icon: <HighlightOutlined />,
+            tooltip: "Edit your displayed name",
+            onChange: value => {
+              typedString.current = value;
+            },
+            onEnd: () => {
+              if (typedString.current)
+                changeName({
+                  variables: {
+                    newName: typedString.current,
+                  },
+                });
+            },
           }}
         >
-          Change name
-        </button>
+          {data.user.name}
+        </Title>
       </section>
     );
   }
 
-  return <h1>Not connected</h1>;
+  return <Title level={3}>Not connected</Title>;
 }
 
 export default DisplayUser;

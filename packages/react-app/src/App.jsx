@@ -455,7 +455,6 @@ function App(props) {
         {faucetHint}
       </div>
 
-      {display}
       <GraphqlSign injectedProvider={injectedProvider} userProvider={userProvider} address={address} />
       <DisplayUser />
       <BrowserRouter>

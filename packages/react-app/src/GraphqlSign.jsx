@@ -36,18 +36,10 @@ function GraphqlSign({ injectedProvider, userProvider, address }) {
 
   const [getMessage, { loading: getMesageloading, refetch }] = useLazyQuery(GET_MESSAGE_QUERY, {
     onCompleted: async data => {
-      // const message = msgToSign.data.replace("**ADDRESS**", address);
       const message = data.seedMessage.message;
-      console.log("Message from graphql", message);
 
-      // length 1 for testing
-      if (message.length > 1) {
-        const sig = await userProvider.send("personal_sign", [message, address]);
-        verifySignedMessage({ variables: { verifySignedMessageSignedMessage: { address, message, signature: sig } } });
-        console.log("signature graphql", sig);
-      } else {
-        UiMessagePopUp.error(" Sorry, the server is overloaded. 🧯🚒🔥");
-      }
+      const sig = await userProvider.send("personal_sign", [message, address]);
+      verifySignedMessage({ variables: { verifySignedMessageSignedMessage: { address, message, signature: sig } } });
     },
     onError: () => {
       UiMessagePopUp.error(" Sorry, the server is overloaded. 🧯🚒🔥");
