@@ -1,5 +1,5 @@
 import React from "react";
-import { Comment, Tooltip, List, Typography } from "antd";
+import { Comment, Tooltip, List, Typography, Form, Input, Button, Avatar } from "antd";
 import Blockies from "react-blockies";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
@@ -54,40 +54,54 @@ function PostView() {
   const post = data.post;
   //  <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" alt="Han Solo" />
   console.log("post", post);
-  // const comments = post.comments.map(({ id: commentId, content, creator }) => {
-  //   return (
-  //     <Container key={"#Comment" + commentId}>
-  //       <Comment
-  //         actions={[<span key="comment-basic-reply-to">Reply to</span>]}
-  //         author={<a>{`${creator.name} - ${creator.address}`}</a>}
-  //         avatar={<Blockies seed={creator.address.toLowerCase()} size={10} />}
-  //         content={<p>{content}</p>}
-  //         datetime={
-  //           <Tooltip title="date/102/21">
-  //             <span>date/102/21</span>
-  //           </Tooltip>
-  //         }
-  //       />
-  //     </Container>
-  //   );
-  // });
-  const comments = post.comments.map(({ content, creator }) => {
-    return {
-      actions: [<span key="comment-basic-reply-to">Reply to</span>],
-      author: <a>{`${creator.name} - ${creator.address}`}</a>,
-      avatar: <Blockies seed={creator.address.toLowerCase()} size={10} />,
-      content: <p>{content}</p>,
-      datetime: (
-        <Tooltip title="date/102/21">
-          <span>date/102/21</span>
-        </Tooltip>
-      ),
-    };
-  });
+
+  const Editor = ({ onChange, onSubmit, submitting, value, text }) => (
+    <>
+      <Form.Item>
+        <Input.TextArea rows={4} onChange={onChange} value={value} />
+      </Form.Item>
+      <Form.Item>
+        <Button htmlType="submit" loading={submitting} onClick={onSubmit} type="primary">
+          {text}
+        </Button>
+      </Form.Item>
+    </>
+  );
+
+  const commentEditor = (
+    <Comment
+      avatar={
+        <Blockies
+          seed={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" alt="Han Solo" />}
+          size={10}
+        />
+      }
+      content={<Editor text="Add Question" onChange={() => {}} onSubmit={() => {}} submitting={false} />}
+    />
+  );
+
+  const createCommentsObj = commentsArray => {
+    return commentsArray.map(({ content, creator, subcomments }) => {
+      return {
+        subcomments: createCommentsObj(subcomments ?? []),
+        actions: [<span key="comment-basic-reply-to">Reply to</span>],
+        author: <a>{`${creator.name} - ${creator.address}`}</a>,
+        avatar: <Blockies seed={creator.address.toLowerCase()} size={10} />,
+        content: <p>{content}</p>,
+        datetime: (
+          <Tooltip title="date/102/21">
+            <span>date/102/21</span>
+          </Tooltip>
+        ),
+      };
+    });
+  };
+
+  const comments = createCommentsObj(post.comments);
 
   return (
     <Container mt="2em">
-      <Paragraph secondary>{`${post.creator.name} - ${post.creator.name}`}</Paragraph>
+      <Paragraph secondary>{`${post.creator.name} - ${post.creator.address}`}</Paragraph>
 
       <List
         header={<Paragraph strong>Required Tokens</Paragraph>}
@@ -105,7 +119,7 @@ function PostView() {
       <List
         className="comment-list"
         style={{ textAlign: "left" }}
-        header={`${comments.length} replies`}
+        header={`${comments.length} Questions`}
         itemLayout="horizontal"
         dataSource={comments}
         renderItem={item => (
@@ -116,10 +130,23 @@ function PostView() {
               avatar={item.avatar}
               content={item.content}
               datetime={item.datetime}
-            />
+            >
+              {item.subcomments.map(subComment => {
+                return (
+                  <Comment
+                    actions={subComment.actions}
+                    author={subComment.author}
+                    avatar={subComment.avatar}
+                    content={subComment.content}
+                    datetime={subComment.datetime}
+                  />
+                );
+              })}
+            </Comment>
           </li>
         )}
       />
+      {commentEditor}
 
       <button
         type="button"
@@ -135,7 +162,7 @@ function PostView() {
           respondComment({
             variables: {
               respondCommentInput: { content: "new response from front-end", postId: id },
-              commentToRespond: "5",
+              commentToRespond: "10",
             },
           });
         }}
