@@ -16,7 +16,7 @@ const GET_POSTS_QUERY = gql`
   }
 `;
 
-function PostsView() {
+function PostsView({ ensProvider }) {
   const { loading, error, data } = useQuery(GET_POSTS_QUERY);
 
   console.log(data);
@@ -34,7 +34,7 @@ function PostsView() {
         return (
           <Container>
             <Divider />
-            <PostHeaderCard post={ama} key={"POST#" + ama.id} />
+            <PostHeaderCard ensProvider={ensProvider} post={ama} key={"POST#" + ama.id} />
           </Container>
         );
       })}

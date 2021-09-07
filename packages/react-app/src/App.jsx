@@ -366,7 +366,7 @@ function App(props) {
               </Route>
 
               <Route path="/">
-                <PostsView />
+                <PostsView ensProvider={mainnetProvider} />
               </Route>
             </Switch>
           </BrowserRouter>

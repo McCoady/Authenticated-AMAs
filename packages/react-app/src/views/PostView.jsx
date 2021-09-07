@@ -4,6 +4,7 @@ import Blockies from "react-blockies";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import CommentEditor from "../components/Post/CommentEditor";
+import moment from "moment";
 
 import Container from "../components/Layout/Container";
 import { COMPLETE_POST_FRAGMENT } from "../fragments/PostFragments.graphql";
@@ -37,7 +38,7 @@ const RESPOND_COMMENT_MUTATION = gql`
   }
 `;
 
-function PostView() {
+function PostView({ ensProvider }) {
   const { id } = useParams();
   const { loading, error, data } = useQuery(GET_POST_QUERY, { variables: { postId: id } });
   const [replyCommentId, setReplyCommentId] = useState(null);
@@ -77,9 +78,7 @@ function PostView() {
         author: <a>{`${creator.name} - ${creator.address}`}</a>,
         avatar: <Blockies seed={creator.address.toLowerCase()} size={10} />,
         content: <p>{content}</p>,
-        datetime: (<p>{`${new Date(createdAt * 1)}`}</p>
-
-        ),
+        datetime: <span>{moment(Number(createdAt)).fromNow()}</span>,
       };
     });
   };
