@@ -12,6 +12,7 @@ Authenticated AMAs are a great way to give back to your community and ensure tha
 
 Check out the site @ https://authenticated-ama.netlify.app/
 
+
 ## How it Works
 
 AMA hosts create an AMA and specify the token required to participate. 
@@ -27,6 +28,7 @@ If a user wishes to ask a question in one of the AMAs an Infura API call will ch
 The demo stack has some preset AMAs to test out functionality.
 
 Head to the ‘Mint Test Tokens’ tab on the app to mint some dummy ERC721 tokens to gain access to the test AMAs. 
+
 
 ## Setup
 
@@ -67,6 +69,7 @@ yarn compile
 
 ### 8. You base site should be ready for action
 
+
 ## Future Ideas/Improvements
 
 Add more options for creators when making an AMA (edit AMA expiry date, edit quantity of tokens required, moderation functions, etc)
@@ -74,6 +77,7 @@ Add more options for creators when making an AMA (edit AMA expiry date, edit qua
 Integrate an ability for users to set profile pictures in the app to the image data of the users relevant ERC721 token.🎨
 
 Add self-policing rules where participants in an AMA can vote to have posts removed/hidden. 👮‍♀️
+
 
 ## Techstack
 GraphQL - Apollo
