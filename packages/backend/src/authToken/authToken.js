@@ -33,13 +33,15 @@ const IERC721 = require("../../../hardhat/artifacts/contracts/IERC721.sol/IERC72
 const INFURA_ID = process.env.INFURA_ID;
 const networkLink = "https://ropsten.infura.io/v3/";
 
+function getProvider() {
+  return new ethers.providers.StaticJsonRpcProvider(networkLink + INFURA_ID);
+}
+
 async function verifyIfAddressHasTokens({ address, tokensAddress }) {
   console.log("verifyIfAddressHasTokens");
   console.log(tokensAddress);
 
-  const infuraProvider = new ethers.providers.StaticJsonRpcProvider(
-    networkLink + INFURA_ID
-  );
+  const infuraProvider = getProvider();
 
   const tokensBalancePromises = tokensAddress.map(async (tokenAddress) => {
     const tokenContract = new ethers.Contract(
@@ -70,4 +72,22 @@ async function verifyIfAddressHasTokens({ address, tokensAddress }) {
   return userHasTokens;
 }
 
-module.exports = { createAuthToken, verifyAuthToken, verifyIfAddressHasTokens };
+async function getTokenName(address) {
+  const infuraProvider = getProvider();
+
+  const tokenContract = new ethers.Contract(
+    address,
+    IERC721.abi,
+    infuraProvider
+  );
+  const name = await tokenContract.name;
+
+  return name;
+}
+
+module.exports = {
+  createAuthToken,
+  verifyAuthToken,
+  verifyIfAddressHasTokens,
+  getTokenName,
+};
