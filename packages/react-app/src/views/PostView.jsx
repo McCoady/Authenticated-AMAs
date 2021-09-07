@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Comment, Tooltip, List, Typography, Form, Input, Button, Avatar } from "antd";
 import Blockies from "react-blockies";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
+import CommentEditor from "../components/Post/CommentEditor";
 
 import Container from "../components/Layout/Container";
 import { COMPLETE_POST_FRAGMENT } from "../fragments/PostFragments.graphql";
@@ -39,9 +40,12 @@ const RESPOND_COMMENT_MUTATION = gql`
 function PostView() {
   const { id } = useParams();
   const { loading, error, data } = useQuery(GET_POST_QUERY, { variables: { postId: id } });
+  const [replyCommentId, setReplyCommentId] = useState(null);
 
-  const [createComment] = useMutation(CREATE_NEW_COMMENT_MUTATION);
-  const [respondComment] = useMutation(RESPOND_COMMENT_MUTATION);
+  const [createComment, { loading: createCommentLoading }] = useMutation(CREATE_NEW_COMMENT_MUTATION);
+  const [respondComment, { loading: respondCommentLoading }] = useMutation(RESPOND_COMMENT_MUTATION, {
+    refetchQueries: ["FindPost"],
+  });
 
   console.log(data);
   if (loading) return <p>Loading ...</p>;
@@ -55,36 +59,21 @@ function PostView() {
   //  <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" alt="Han Solo" />
   console.log("post", post);
 
-  const Editor = ({ onChange, onSubmit, submitting, value, text }) => (
-    <>
-      <Form.Item>
-        <Input.TextArea rows={4} onChange={onChange} value={value} />
-      </Form.Item>
-      <Form.Item>
-        <Button htmlType="submit" loading={submitting} onClick={onSubmit} type="primary">
-          {text}
-        </Button>
-      </Form.Item>
-    </>
-  );
-
-  const commentEditor = (
-    <Comment
-      avatar={
-        <Blockies
-          seed={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" alt="Han Solo" />}
-          size={10}
-        />
-      }
-      content={<Editor text="Add Question" onChange={() => {}} onSubmit={() => {}} submitting={false} />}
-    />
-  );
-
   const createCommentsObj = commentsArray => {
-    return commentsArray.map(({ content, creator, subcomments }) => {
+    return commentsArray.map(({ id: commentId, content, creator, subcomments }) => {
       return {
         subcomments: createCommentsObj(subcomments ?? []),
-        actions: [<span key="comment-basic-reply-to">Reply to</span>],
+        id: commentId,
+        actions: [
+          <span
+            onClick={() => {
+              setReplyCommentId(commentId);
+            }}
+            key="comment-basic-reply-to"
+          >
+            Reply
+          </span>,
+        ],
         author: <a>{`${creator.name} - ${creator.address}`}</a>,
         avatar: <Blockies seed={creator.address.toLowerCase()} size={10} />,
         content: <p>{content}</p>,
@@ -131,10 +120,23 @@ function PostView() {
               content={item.content}
               datetime={item.datetime}
             >
+              {item.id === replyCommentId && (
+                <CommentEditor
+                  onSubmit={value => {
+                    respondComment({
+                      variables: {
+                        respondCommentInput: { content: value, postId: id },
+                        commentToRespond: replyCommentId,
+                      },
+                    }).then(() => setReplyCommentId(null));
+                  }}
+                  text="Reply"
+                  submitting={respondCommentLoading}
+                ></CommentEditor>
+              )}
               {item.subcomments.map(subComment => {
                 return (
                   <Comment
-                    actions={subComment.actions}
                     author={subComment.author}
                     avatar={subComment.avatar}
                     content={subComment.content}
@@ -146,29 +148,13 @@ function PostView() {
           </li>
         )}
       />
-      {commentEditor}
-
-      <button
-        type="button"
-        onClick={() => {
-          createComment({ variables: { addCommentInput: { content: "new comment from front-end", postId: id } } });
+      <CommentEditor
+        submitting={createCommentLoading}
+        text="Add Question"
+        onSubmit={value => {
+          createComment({ variables: { addCommentInput: { content: value, postId: id } } });
         }}
-      >
-        Create new comment
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          respondComment({
-            variables: {
-              respondCommentInput: { content: "new response from front-end", postId: id },
-              commentToRespond: "10",
-            },
-          });
-        }}
-      >
-        Respond comment
-      </button>
+      ></CommentEditor>
     </Container>
   );
 }
