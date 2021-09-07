@@ -25,9 +25,11 @@ If a user wishes to ask a question in one of the AMAs an Infura API call will ch
 
 ## Using the demo
 
+Set your metamask network to Ropsten. 
+
 The demo stack has some preset AMAs to test out functionality.
 
-Head to the ‘Mint Test Tokens’ tab on the app to mint some dummy ERC721 tokens to gain access to the test AMAs. 
+Head to the ‘Mint Test Tokens’ tab on the app to mint some dummy ERC721 tokens on the Ropsten testnet to gain access to the test AMAs. 
 
 
 ## Setup
@@ -80,6 +82,12 @@ Add self-policing rules where participants in an AMA can vote to have posts remo
 
 
 ## Techstack
-GraphQL - Apollo
-Frontend: React, antd, scaffold-eth/sign-in-with-web3 template
-Backend: Prisma, Sqlite
+*GraphQL
+*Apollo
+*Frontend
+ * React
+ * antd
+ * scaffold-eth/sign-in-with-web3 template
+*Backend
+ *Prisma
+ *Sqlite
