@@ -85,9 +85,9 @@ Add self-policing rules where participants in an AMA can vote to have posts remo
 * GraphQL
 * Apollo
 * Frontend
- * React
- * antd
- * scaffold-eth/sign-in-with-web3 template
+  * React
+  * antd
+  * scaffold-eth/sign-in-with-web3 template
 * Backend
- * Prisma
- * Sqlite
+  * Prisma
+  * Sqlite
