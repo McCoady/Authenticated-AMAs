@@ -37,7 +37,10 @@ function CommentEditor({ onChange, onSubmit, submitting, text }) {
               htmlType="submit"
               loading={submitting}
               onClick={() => {
-                if (onSubmit) onSubmit(content);
+                if (onSubmit) {
+                  onSubmit(content);
+                  setContent("");
+                }
               }}
               type="primary"
             >

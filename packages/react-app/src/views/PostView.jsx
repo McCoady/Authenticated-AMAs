@@ -135,12 +135,14 @@ function PostView({ ensProvider }) {
               {item.id === replyCommentId && (
                 <CommentEditor
                   onSubmit={value => {
-                    respondComment({
-                      variables: {
-                        respondCommentInput: { content: value, postId: id },
-                        commentToRespond: replyCommentId,
-                      },
-                    }).then(() => setReplyCommentId(null));
+                    if (value)
+                      respondComment({
+                        variables: {
+                          respondCommentInput: { content: value, postId: id },
+                          commentToRespond: replyCommentId,
+                        },
+                      }).then(() => setReplyCommentId(null));
+                    else UiMessagePopUp.error("Your message is empty, don't be shy 🙊");
                   }}
                   text="Reply"
                   submitting={respondCommentLoading}
@@ -164,7 +166,8 @@ function PostView({ ensProvider }) {
         submitting={createCommentLoading}
         text="Add Question"
         onSubmit={value => {
-          createComment({ variables: { addCommentInput: { content: value, postId: id } } });
+          if (value) createComment({ variables: { addCommentInput: { content: value, postId: id } } });
+          else UiMessagePopUp.error("Your message is empty, don't be shy 🙊");
         }}
       ></CommentEditor>
     </Container>
