@@ -3,6 +3,7 @@ const _ = require("lodash");
 const {
   verifyAuthToken,
   verifyIfAddressHasTokens,
+  getTokenName,
 } = require("../authToken/authToken");
 
 const INCLUDE_ALL_POST_FIELDS = {
@@ -88,6 +89,9 @@ async function addComment(parent, { commentInput }, { authToken }, info) {
   console.log("commentInput", commentInput);
   const { content, postId } = commentInput;
 
+  if (content && content.length > 500)
+    throw "Comment with more than 500 caracters";
+
   const canComment = await verifyIfAddressCanComment({ address, postId });
   console.log("canComment", canComment);
   if (!canComment) throw "Sorry, you dont have the necessary tokens!";
@@ -130,6 +134,9 @@ async function respondComment(
   info
 ) {
   const { address } = await verifyAuthToken(authToken);
+
+  if (content && content.length > 500)
+    throw "Comment with more than 500 caracters";
 
   const canComment = await verifyIfAddressCanComment({ address, postId });
   console.log("canRespond", canComment);
@@ -174,15 +181,23 @@ async function createPost(
 ) {
   const { address } = await verifyAuthToken(authToken);
 
-  const tokensQuery = requiredTokens.map(
-    ({ address: tokenAddress, name: tokenName }) => ({
-      where: { address: tokenAddress },
-      create: {
-        address: tokenAddress,
-        name: tokenName,
-      },
-    })
+  if (title && title.length > 100) throw "Title with more than 100 caracters";
+
+  const tokensQueryPromise = requiredTokens.map(
+    async ({ address: tokenAddress, name: tokenName }) => {
+      const name = await getTokenName(tokenAddress);
+      console.log("name", name);
+      return {
+        where: { address: tokenAddress },
+        create: {
+          address: tokenAddress,
+          name,
+        },
+      };
+    }
   );
+
+  const tokensQuery = await Promise.all(tokensQueryPromise);
 
   const newPost = await Prisma.post.create({
     data: {

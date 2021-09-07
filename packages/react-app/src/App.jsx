@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { Button, Menu, Alert, Switch as SwitchD, Layout, Space } from "antd";
+import { Button, Menu, Alert, Layout } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -11,19 +11,15 @@ import { useUserAddress } from "eth-hooks";
 import { formatEther } from "@ethersproject/units";
 
 import { ethers } from "ethers";
-import { useExchangePrice, useGasPrice, useUserProvider, useBalance, useOnBlock } from "./hooks";
-import { Header as AppHeader, Account } from "./components";
+import { useExchangePrice, useGasPrice, useUserProvider, useBalance } from "./hooks";
+import { Header as AppHeader } from "./components";
 import { Transactor } from "./helpers";
 
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import PostsView from "./views/PostsView";
 import PostView from "./views/PostView";
 
-import Center from "./components/Layout/Center";
-import GraphqlSign from "./GraphqlSign";
 import UserAuthentication from "./components/User/UserAuthentication";
-
-import DisplayUser from "./components/User/DisplayUser";
 
 import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
 import FictionalFinance from "./contracts/FictionalFinance.abi.js";
