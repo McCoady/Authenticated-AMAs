@@ -55,23 +55,24 @@ yarn install
 
 cd/packages/backend
 npx prisma generate
-npx prisma migrate
+npx prisma migrate reset
 ```
 
-### 5. Open a new terminal in the root directory and start your backend
+### 5. Prepare the ERC721/IERC721 Contract ABIs
+```
+yarn compile
+```
+
+### 6. Open a new terminal in the root directory and start your backend
 ```
 yarn backend
 ```
 
-### 6. Open another terminal and start your react app
+### 7. Open another terminal and start your react app
 ```
 yarn start
 ```
 
-### 7. Prepare the ERC721/IERC721 Contract ABIs
-```
-yarn compile
-```
 
 ### 8. You base site should be ready for action
 
