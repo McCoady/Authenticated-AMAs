@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Comment, List, Typography, Form, Input, Button, Avatar } from "antd";
+import { Comment, List, Typography, Skeleton, message as UiMessagePopUp } from "antd";
 import Blockies from "react-blockies";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
@@ -44,12 +44,26 @@ function PostView({ ensProvider }) {
   const { loading, error, data } = useQuery(GET_POST_QUERY, { variables: { postId: id } });
   const [replyCommentId, setReplyCommentId] = useState(null);
 
-  const [createComment, { loading: createCommentLoading }] = useMutation(CREATE_NEW_COMMENT_MUTATION);
+  const [createComment, { loading: createCommentLoading }] = useMutation(CREATE_NEW_COMMENT_MUTATION, {
+    onError: () => {
+      UiMessagePopUp.error("Something went wrong 🙉, please check if you have the required tokens");
+    },
+  });
   const [respondComment, { loading: respondCommentLoading }] = useMutation(RESPOND_COMMENT_MUTATION, {
+    onError: () => {
+      UiMessagePopUp.error("Something went wrong 🙉, please check if you have the required tokens");
+    },
     refetchQueries: ["FindPost"],
   });
 
-  if (loading) return <p>Loading ...</p>;
+  if (loading)
+    return (
+      <Container>
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+      </Container>
+    );
 
   if (error) {
     return <p>Ops, something went wrong</p>;

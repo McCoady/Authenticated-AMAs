@@ -4,7 +4,7 @@ import { gql, useQuery } from "@apollo/client";
 import GraphqlSign from "../../GraphqlSign";
 import DisplayUser from "./DisplayUser";
 
-const GET_USER_INFO = gql`
+export const GET_USER_INFO = gql`
   query GetUserInfo {
     user {
       address
