@@ -88,7 +88,7 @@ function PostView({ ensProvider }) {
 
   return (
     <Container mt="2em">
-      <Paragraph secondary>{`${post.creator.name} - ${post.creator.address}`}</Paragraph>
+      <AddressHeader name={post.creator.name} address={post.creator.address} ensProvider={ensProvider} />
 
       <List
         header={<Paragraph strong>Required Tokens</Paragraph>}
