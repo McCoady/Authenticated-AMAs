@@ -10,7 +10,44 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Post {
+model User {
+  address String    @id
+  name    String    @unique
+  post    Post[]
+  Comment Comment[]
+}
+
+model Token {
+  address   String  @id
+  name      String?
+  postsUsed Post[]
+}
+
+model Comment {
   id        Int      @id @default(autoincrement())
+  content   String
   createdAt DateTime @default(now())
+
+  creator        User   @relation(fields: [creatorAddress], references: [address])
+  creatorAddress String
+
+  originComment Comment?  @relation("SubComment", fields: [commentId], references: [id])
+  commentId     Int?
+  subcomments   Comment[] @relation("SubComment")
+
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  title      String
+  expiration DateTime
+
+  creator        User   @relation(fields: [creatorAddress], references: [address])
+  creatorAddress String
+
+  requiredTokens Token[]
+  comments       Comment[]
 }

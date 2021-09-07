@@ -1,35 +1,35 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
-import { StaticJsonRpcProvider, JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { message, Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
+import { Button, Menu, Alert, Layout } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
-import { useQuery, gql } from "@apollo/client";
-import { formatEther, parseEther } from "@ethersproject/units";
-import { useThemeSwitcher } from "react-css-theme-switcher";
-import {
-  useExchangePrice,
-  useGasPrice,
-  useUserProvider,
-  useContractLoader,
-  useContractReader,
-  useEventListener,
-  useBalance,
-  useExternalContractLoader,
-  useOnBlock,
-} from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
+
+import { formatEther } from "@ethersproject/units";
+
+import { ethers } from "ethers";
+import { useExchangePrice, useGasPrice, useUserProvider, useBalance } from "./hooks";
+import { Header as AppHeader } from "./components";
 import { Transactor } from "./helpers";
-// import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph } from "./views";
-import { INFURA_ID, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 
-import GraphqlSign from "./GraphqlSign";
+import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
+import PostsView from "./views/PostsView";
+import PostView from "./views/PostView";
 
-const axios = require("axios");
+import UserAuthentication from "./components/User/UserAuthentication";
+
+import DecentralisedDonuts from "./contracts/DecentralisedDonuts.abi.js";
+import FictionalFinance from "./contracts/FictionalFinance.abi.js";
+import InterestingIguanas from "./contracts/InterestingIguanas.abi.js";
+
+const { Content } = Layout;
+
+const donutAddress = "0x6e6598Bd833c3ABf05dBb64c0FDfEd11e6881E26";
+const fictionalAddress = "0xD5BF303973Fef7B7821378E8aFE890BEd8b102f3";
+const iguanaAddress = "0x6845556EAbdB4a535B98746CB4A2ee4BF79C508e";
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -50,14 +50,11 @@ const axios = require("axios");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
-// const serverUrl = "https://backend.ether.delivery:49832/"
-const serverUrl = "http://localhost:49832/";
-
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.mainnet; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.ropsten; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -123,9 +120,9 @@ function App(props) {
   //  const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
 
   // If you want to call a function on a new block
-  useOnBlock(mainnetProvider, () => {
-    console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
-  });
+  // useOnBlock(mainnetProvider, () => {
+  //   console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
+  // });
 
   // Then read your DAI balance like:
   //  const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
@@ -188,11 +185,7 @@ function App(props) {
       </div>
     );
   } else {
-    networkDisplay = (
-      <div style={{ zIndex: -1, position: "absolute", right: 154, top: 8, padding: 16, color: targetNetwork.color }}>
-        {targetNetwork.name}
-      </div>
-    );
+    networkDisplay = <div style={{ color: targetNetwork.color }}>{targetNetwork.name}</div>;
   }
 
   const loadWeb3Modal = useCallback(async () => {
@@ -211,242 +204,174 @@ function App(props) {
     setRoute(window.location.pathname);
   }, [setRoute]);
 
-  let faucetHint = "";
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name == "localhost";
-
-  const [faucetClicked, setFaucetClicked] = useState(false);
-  if (
-    !faucetClicked &&
-    localProvider &&
-    localProvider._network &&
-    localProvider._network.chainId == 31337 &&
-    yourLocalBalance &&
-    formatEther(yourLocalBalance) <= 0
-  ) {
-    faucetHint = (
-      <div style={{ padding: 16 }}>
-        <Button
-          type="primary"
-          onClick={() => {
-            faucetTx({
-              to: address,
-              value: parseEther("0.01"),
-            });
-            setFaucetClicked(true);
-          }}
-        >
-          💰 Grab funds from the faucet ⛽️
-        </Button>
-      </div>
-    );
-  }
-
-  const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
-
-  const [loading, setLoading] = useState();
-  const [result, setResult] = useState();
-
-  // NEW GRAPH QL CODE
-
-  let display = "";
-  if (result) {
-    let possibleTxId = result.substr(-66);
-    console.log("possibleTxId", possibleTxId);
-    let extraLink = "";
-    if (possibleTxId.indexOf("0x") == 0) {
-      extraLink = (
-        <a href={blockExplorer + "tx/" + possibleTxId} target="_blank">
-          view transaction on etherscan
-        </a>
-      );
-    } else {
-      possibleTxId = "";
+  async function mintDonut() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer);
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log("1 Decentralised Donut minted");
+    } catch (error) {
+      console.error("Transaction Failed. Address already opted in?");
     }
-    display = (
-      <div style={{ marginTop: 32 }}>
-        {result.replace(possibleTxId, "")} {extraLink}
-      </div>
-    );
-  } else if (isSigner) {
-    display = (
-      <Button
-        loading={loading}
-        style={{ marginTop: 32 }}
-        type="primary"
-        onClick={async () => {
-          setLoading(true);
-          try {
-            const msgToSign = await axios.get(serverUrl);
-            console.log("msgToSign", msgToSign);
-            if (msgToSign.data && msgToSign.data.length > 32) {
-              // <--- traffic escape hatch?
-              let currentLoader = setTimeout(() => {
-                setLoading(false);
-              }, 4000);
-              const message = msgToSign.data.replace("**ADDRESS**", address);
-              const sig = await userProvider.send("personal_sign", [message, address]);
-              clearTimeout(currentLoader);
-              currentLoader = setTimeout(() => {
-                setLoading(false);
-              }, 4000);
-              console.log("sig", sig);
-              const res = await axios.post(serverUrl, {
-                address,
-                message,
-                signature: sig,
-              });
-              clearTimeout(currentLoader);
-              setLoading(false);
-              console.log("RESULT:", res);
-              if (res.data) {
-                setResult(res.data);
-              }
-            } else {
-              setLoading(false);
-              setResult("😅 Sorry, the server is overloaded. Please try again later. ⏳");
-            }
-          } catch (e) {
-            message.error(" Sorry, the server is overloaded. 🧯🚒🔥");
-            console.log("FAILED TO GET...");
-          }
-        }}
-      >
-        <span style={{ marginRight: 8 }}>🔏</span> sign a message with your ethereum wallet
-      </Button>
-    );
   }
+
+  async function mintFictional() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer);
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log("1 Fictional Finance Token minted");
+    } catch (error) {
+      console.error("Transaction Failed. Address already opted in?");
+    }
+  }
+
+  async function mintIguana() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer);
+    try {
+      const mint = await contract.mintToken();
+      await mint.wait();
+      console.log("1 Interesting Iguana minted");
+    } catch (error) {
+      console.error("Transaction Failed. Address already opted in?");
+    }
+  }
+  const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
   return (
     <div className="App">
-      {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
+      <Layout>
+        <AppHeader networkDisplay={networkDisplay} />
 
-      {networkDisplay}
-      {/*
-
-      <BrowserRouter>
-
-        <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">Mainnet DAI</Link>
-          </Menu.Item>
-          <Menu.Item key="/hints">
-            <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
-          </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link onClick={()=>{setRoute("/exampleui")}} to="/exampleui">ExampleUI</Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
-          </Menu.Item>
-        </Menu>
-
-
-        <Switch>
-          <Route exact path="/">
-
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
+        <Content>
+          {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
+          {/* <div style={{ textAlign: "center", padding: 10 }}>
+            <Account
+              connectText="Connect Ethereum Wallet"
+              onlyShowButton={!isSigner}
               address={address}
-              blockExplorer={"https://etherscan.io/"}
-            />
-
-
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
+              localProvider={localProvider}
               userProvider={userProvider}
               mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
               price={price}
-              tx={tx}
+              web3Modal={web3Modal}
+              loadWeb3Modal={loadWeb3Modal}
+              logoutOfWeb3Modal={logoutOfWeb3Modal}
+              blockExplorer={blockExplorer}
             />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-            subgraphUri={props.subgraphUri}
-            tx={tx}
+          </div> */}
+
+          <UserAuthentication
+            web3Modal={web3Modal}
+            loadWeb3Modal={loadWeb3Modal}
+            logoutOfWeb3Modal={logoutOfWeb3Modal}
+            injectedProvider={injectedProvider}
+            userProvider={userProvider}
+            address={address}
             mainnetProvider={mainnetProvider}
-            />
-          </Route>
-        </Switch>
+            blockExplorer={blockExplorer}
+          />
 
-      </BrowserRouter>
-      */}
-      <ThemeSwitch />
+          <BrowserRouter>
+            <Menu
+              style={{ textAlign: "center", display: "flex", justifyContent: "center" }}
+              selectedKeys={[route]}
+              mode="horizontal"
+            >
+              <Menu.Item key="/">
+                <Link
+                  onClick={() => {
+                    setRoute("/");
+                  }}
+                  to="/"
+                >
+                  AMA
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="/about">
+                <Link
+                  onClick={() => {
+                    setRoute("/about");
+                  }}
+                  to="/about"
+                >
+                  About
+                </Link>
+              </Menu.Item>
 
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{ textAlign: "center", padding: 10 }}>
-        <Account
-          connectText="Connect Ethereum Wallet"
-          onlyShowButton={!isSigner}
-          address={address}
-          localProvider={localProvider}
-          userProvider={userProvider}
-          mainnetProvider={mainnetProvider}
-          price={price}
-          web3Modal={web3Modal}
-          loadWeb3Modal={loadWeb3Modal}
-          logoutOfWeb3Modal={logoutOfWeb3Modal}
-          blockExplorer={blockExplorer}
-        />
-        {faucetHint}
-      </div>
+              <Menu.Item key="/faucet">
+                <Link
+                  onClick={() => {
+                    setRoute("/faucet");
+                  }}
+                  to="/faucet"
+                />
+                Mint Test Tokens
+              </Menu.Item>
+            </Menu>
 
-      {display}
-      <GraphqlSign injectedProvider={injectedProvider} userProvider={userProvider} address={address} />
+            <Switch>
+              <Route exact path="/about">
+                <p style={{ marginTop: 24, fontSize: 16 }}>
+                  Authenticated AMAs offer a simple way for builders/creators to host AMAs with members of their
+                  community. 🔊
+                </p>
 
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support:
-       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-         <Row align="middle" gutter={[4, 4]}>
-           <Col span={8}>
-             <Ramp price={price} address={address} networks={NETWORKS}/>
-           </Col>
+                <p style={{ marginTop: 12, fontSize: 16 }}>
+                  {" "}
+                  AMA hosts can specify the token required to take part in the AMA so they can be sure the participants
+                  are shareholders in the project. 👨‍👩‍👧‍👦
+                </p>
 
-           <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-             <GasGauge gasPrice={gasPrice} />
-           </Col>
-           <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-             <Button
-               onClick={() => {
-                 window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-               }}
-               size="large"
-               shape="round"
-             >
-               <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                 💬
-               </span>
-               Support
-             </Button>
-           </Col>
-         </Row>
+                <p style={{ marginTop: 12, fontSize: 16 }}>
+                  {" "}
+                  Participation requires only that users sign a message confirming their ethereum address, this way
+                  nobody has to pay gas to host or participate in an Authenticated AMA. 💸
+                </p>
 
-         <Row align="middle" gutter={[4, 4]}>
-           <Col span={24}>
-             {
-               faucetAvailable ? (
-                 <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider}/>
-               ) : (
-                 ""
-               )
-             }
-           </Col>
-         </Row>
-       </div> */}
+                <p style={{ marginTop: 12, fontSize: 16 }}>
+                  {" "}
+                  Authenticated AMAs are a great way to give back to your community and ensure that you are interacting
+                  with real community members. 🔎
+                </p>
+              </Route>
+
+              <Route exact path="/post/:id">
+                <PostView ensProvider={mainnetProvider} />
+              </Route>
+
+              <Route exact path="/faucet">
+                <p style={{ marginTop: 24, fontSize: 20 }}>Mint some dummy ERC721 tokens to test out the site. 🔨</p>
+                <p>
+                  <Button style={{ marginTop: 32 }} type="primary" onClick={mintDonut}>
+                    Mint A Decentralised Donut 🍩
+                  </Button>
+                </p>
+                <p>
+                  <Button style={{ marginTop: 32 }} type="primary" onClick={mintFictional}>
+                    Mint A Fictional Finance Token 💰
+                  </Button>
+                </p>
+                <p>
+                  <Button style={{ marginTop: 32 }} type="primary" onClick={mintIguana}>
+                    Mint An Interesting Iguana 🦎
+                  </Button>
+                </p>
+              </Route>
+
+              <Route path="/">
+                <PostsView ensProvider={mainnetProvider} />
+              </Route>
+            </Switch>
+          </BrowserRouter>
+        </Content>
+      </Layout>
     </div>
   );
 }

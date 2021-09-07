@@ -2,6 +2,7 @@ const { utils } = require("ethers");
 const fs = require("fs");
 const chalk = require("chalk");
 
+require('dotenv').config();
 require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly")
 
@@ -21,7 +22,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "ropsten";
 
 function mnemonic() {
   try {
@@ -121,7 +122,7 @@ module.exports = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: "PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8"
+    apiKey: "44555GQ2KM12SKV2IMQ94N3YV7K22E7IUD"
   }
 };
 

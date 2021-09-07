@@ -1,77 +1,99 @@
-/*
-  Uncomment this if you want to create a wallet to send ETH or something...
-const INFURA = JSON.parse(fs.readFileSync("./infura.txt").toString().trim())
-const PK = fs.readFileSync("./pk.txt").toString().trim()
-let wallet = new ethers.Wallet(PK,new ethers.providers.InfuraProvider("goerli",INFURA))
-console.log(wallet.address)
-const checkWalletBalance = async ()=>{
-  console.log("BALANCE:",ethers.utils.formatEther(await wallet.provider.getBalance(wallet.address)))
-}
-checkWalletBalance()ss
-*/
 var ethers = require("ethers");
+const Prisma = require("../prisma");
 
-//import IERC721 from ".../hardhat/artifacts/contracts/IERC721.sol/IERC721.json";
+const { createAuthToken, verifyAuthToken } = require("../authToken/authToken");
 
-//const INFURA_ID = env("INFURA_ID");
-const tokenAddress = "0x2414F22e3a423DD63d085dD0d667334F060d733d";
+const messagesSent = {};
 
-let currentMessage =
-  "I am **ADDRESS** and I would like to sign in to YourDapp, plz! s";
+function seedMessage(parent, args, context, info) {
+  const { address } = args;
+  const currentDate = String(Date.now());
+  const message = `I am ${address} and I would like to sign in to YourDapp, plz! This message was sent on ${currentDate}`;
 
-function seedMessage() {
-  return { message: currentMessage, date: String(Date.now()) };
+  messagesSent[address] = message;
+  return { message, date: currentDate };
 }
 
-function verifySignedMessage(parent, args, context, info) {
-  console.log("mutation", args);
+async function verifySignedMessage(parent, args, context, info) {
+  console.log("mutatiosn", args);
+  const { message, signature, address } = args.signedMessage;
+  let recovered = null;
 
-  //Placeholder for testing
-  return { status: true, details: "You're a good boy :D" };
+  const messageSent = messagesSent[address];
+  delete messagesSent[address];
 
-  //IP needed?
+  try {
+    recovered = ethers.utils.verifyMessage(message, signature);
+  } catch {
+    return {
+      status: false,
+      details: "Sorry, You're not good boy :(",
+    };
+  }
 
-  /* 
-  
-     const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
-     console.log("POST from ip address:", ip, request.body.message)
-     if (request.body.message != currentMessage.replace("**ADDRESS**", request.body.address)) {
-         response.send(" ⚠️ Secret message mismatch!?! Please reload and try again. Sorry! 😅");
-     } else {
-         let recovered = ethers.utils.verifyMessage(request.body.message, request.body.signature)
- 
-         const userAddress = request.body.address;
- 
-         if (recovered == request.body.address) {
- 
-             const ropstenInfura = new ethers.providers.StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
- 
-             const tokenContract = new ethers.Contract(tokenAddress, IERC721.abi, ropstenInfura)
- 
-             const tokenBalance = await tokenContract.balanceOf(userAddress);
- 
-             const userHasTokens = tokenBalance && tokenBalance.gt(0);
- 
-             if (userHasTokens) {
-                 response.send(" 👍 successfully signed in as [" + userAddress + "]! Ask away!");
-                 //**Access hidden content**
-             } else {
-                 response.send(" 🤔 successfully signed in as [" + userAddress + "]... But you don't have the required token to participate.");
- 
-             }
- 
- 
-         }
-     }
- });*/
+  if (recovered === address && messageSent == message) {
+    const jwt = await createAuthToken({ address: address });
+
+    return {
+      status: true,
+      details: "You're a good boy :D",
+      authToken: jwt,
+    };
+  } else {
+    return {
+      status: false,
+      details: "Sorry, You're not good boy :(",
+    };
+  }
+}
+
+async function changeAddressName(parent, { name }, { authToken }, info) {
+  const { address } = await verifyAuthToken(authToken);
+
+  const user = await Prisma.user.update({
+    where: { address },
+    data: {
+      name,
+    },
+  });
+
+  return user;
+}
+
+async function user(parent, args, { authToken }, info) {
+  const { address } = await verifyAuthToken(authToken);
+
+  const user = await Prisma.user.findUnique({
+    where: { address },
+    rejectOnNotFound: false,
+  });
+
+  if (!user) return await createDefaultUser(address);
+
+  return user;
+}
+
+async function createDefaultUser(address) {
+  //Add resolver to ens name here
+
+  const user = await Prisma.user.create({
+    data: {
+      address,
+      name: "unknown",
+    },
+  });
+
+  return user;
 }
 
 const AuthResolver = {
   Query: {
     seedMessage,
+    user,
   },
   Mutation: {
     verifySignedMessage,
+    changeAddressName,
   },
 };
 
