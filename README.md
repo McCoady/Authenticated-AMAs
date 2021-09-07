@@ -8,6 +8,8 @@ AMA hosts can specify the token required to take part in the AMA so they can be 
 
 Participation requires only that users sign a message confirming their ethereum address, this way nobody has to pay gas to host or participate in an Authenticated AMA. 💸
 
+Users can set a username on the site and ENS domains are also fully supported. 🎫
+
 Authenticated AMAs are a great way to give back to your community and ensure that you are interacting with real community members. 🔎
 
 Check out the site @ https://authenticated-ama.netlify.app/
@@ -25,7 +27,9 @@ If a user wishes to ask a question in one of the AMAs an Infura API call will ch
 
 ## Using the demo
 
-Set your metamask network to Ropsten. 
+Set your metamask network to Ropsten Test Network. 🔬 
+
+Sign in and set your username. ✏
 
 The demo stack has some preset AMAs to test out functionality.
 
