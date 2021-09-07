@@ -343,7 +343,7 @@ function App(props) {
               </Route>
 
               <Route exact path="/post/:id">
-                <PostView />
+                <PostView ensProvider={mainnetProvider} />
               </Route>
 
               <Route exact path="/faucet">

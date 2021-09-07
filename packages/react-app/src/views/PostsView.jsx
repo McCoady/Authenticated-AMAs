@@ -1,5 +1,5 @@
 import React from "react";
-import { Divider } from "antd";
+import { Divider, Skeleton } from "antd";
 import { gql, useQuery } from "@apollo/client";
 import Container from "../components/Layout/Container";
 
@@ -20,7 +20,14 @@ function PostsView({ ensProvider }) {
   const { loading, error, data } = useQuery(GET_POSTS_QUERY);
 
   console.log(data);
-  if (loading) return <p>Loading ...</p>;
+  if (loading)
+    return (
+      <Container>
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+      </Container>
+    );
 
   if (error) return <p>Ops, something went wrong</p>;
 

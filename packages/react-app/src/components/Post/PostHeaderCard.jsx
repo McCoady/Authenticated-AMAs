@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import moment from "moment";
 import Blockies from "react-blockies";
 import { useLookupAddress } from "eth-hooks";
+import AddressHeader from "./AddressHeader";
 
 const { Paragraph, Text } = Typography;
 
@@ -17,8 +18,6 @@ export default function PostHeaderCard({ post, ensProvider }) {
     creator: { name, address },
   } = post;
 
-  const ensAddres = useLookupAddress(ensProvider, address);
-  const resolvedAddress = ensAddres || address;
   return (
     <Card
       hoverable
@@ -32,7 +31,8 @@ export default function PostHeaderCard({ post, ensProvider }) {
       <Paragraph>
         <Space>
           <Blockies seed={address.toLowerCase()} size={10} />
-          {`  ${name} - ${resolvedAddress}  `}
+          <Divider type="vertical" />
+          <AddressHeader name={name} address={address} ensProvider={ensProvider} />
           <Text disabled>{moment(Number(createdAt)).fromNow()}</Text>
         </Space>
       </Paragraph>

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Comment, Tooltip, List, Typography, Form, Input, Button, Avatar } from "antd";
+import { Comment, List, Typography, Form, Input, Button, Avatar } from "antd";
 import Blockies from "react-blockies";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import CommentEditor from "../components/Post/CommentEditor";
 import moment from "moment";
+import AddressHeader from "../components/Post/AddressHeader";
 
 import Container from "../components/Layout/Container";
 import { COMPLETE_POST_FRAGMENT } from "../fragments/PostFragments.graphql";
@@ -48,17 +49,13 @@ function PostView({ ensProvider }) {
     refetchQueries: ["FindPost"],
   });
 
-  console.log(data);
   if (loading) return <p>Loading ...</p>;
 
   if (error) {
-    console.log(error);
     return <p>Ops, something went wrong</p>;
   }
 
   const post = data.post;
-  //  <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" alt="Han Solo" />
-  console.log("post", post);
 
   const createCommentsObj = commentsArray => {
     return commentsArray.map(({ id: commentId, content, creator, createdAt, subcomments }) => {
@@ -75,7 +72,11 @@ function PostView({ ensProvider }) {
             Reply
           </span>,
         ],
-        author: <a>{`${creator.name} - ${creator.address}`}</a>,
+        author: (
+          <a>
+            <AddressHeader name={creator.name} address={creator.address} ensProvider={ensProvider} />
+          </a>
+        ),
         avatar: <Blockies seed={creator.address.toLowerCase()} size={10} />,
         content: <p>{content}</p>,
         datetime: <span>{moment(Number(createdAt)).fromNow()}</span>,

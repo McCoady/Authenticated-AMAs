@@ -30,7 +30,7 @@ async function verifyAuthToken(jwt) {
 }
 
 const IERC721 = require("../../../hardhat/artifacts/contracts/IERC721.sol/IERC721.json");
-const ERC721 = require("../../../hardhat/artifacts/@openzeppelin/contracts/token/ERC721/ERC721.sol/ERC721.json")
+const ERC721 = require("../../../hardhat/artifacts/@openzeppelin/contracts/token/ERC721/ERC721.sol/ERC721.json");
 const INFURA_ID = process.env.INFURA_ID;
 const networkLink = "https://ropsten.infura.io/v3/";
 
@@ -81,9 +81,12 @@ async function getTokenName(address) {
     ERC721.abi,
     infuraProvider
   );
-  const name = await tokenContract.name();
-
-  return name;
+  try {
+    const name = await tokenContract.name();
+    return name;
+  } catch {
+    return "Unknown Name";
+  }
 }
 
 module.exports = {
