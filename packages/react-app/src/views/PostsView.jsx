@@ -19,7 +19,6 @@ const GET_POSTS_QUERY = gql`
 function PostsView({ ensProvider }) {
   const { loading, error, data } = useQuery(GET_POSTS_QUERY);
 
-  console.log(data);
   if (loading)
     return (
       <Container>

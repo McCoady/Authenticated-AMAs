@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from "react";
 import { Form, Input, Button, Spin, Collapse } from "antd";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { POST_HEADER_FRAGMENT } from "../../fragments/PostFragments.graphql";
-import Center from "../Layout/Center";
+
+import { GET_USER_INFO } from "../User/UserAuthentication";
 
 const { Panel } = Collapse;
 
@@ -19,17 +20,12 @@ const CREATE_NEW_POST_MUTATION = gql`
 
 function CreateNewPost() {
   const [createPost, { loading, error }] = useMutation(CREATE_NEW_POST_MUTATION, { refetchQueries: ["PostsQuery"] });
+  const { data: authenticated } = useQuery(GET_USER_INFO);
 
   if (loading) return <Spin />;
   if (error) return <h1>Sorry something went wrong</h1>;
 
   const onFinish = values => {
-    console.log("Success:", values);
-
-    // Whiout tokens name for now
-    // requiredTokens: [
-    //   { address: "token addres1", name: "tokenName 1" },
-    //   { address: "token addres2", name: "tokenName 2" },
     const requiredTokens = values.requiredTokens ? values.requiredTokens.map(address => ({ address })) : [];
     createPost({
       variables: {
@@ -46,8 +42,16 @@ function CreateNewPost() {
   };
 
   return (
-    <Collapse style={{ marginTop: "2.5em" }}>
-      <Panel header={<Button type="dashed">Create new AMA</Button>} key="1" showArrow={false}>
+    <Collapse collapsible={authenticated ? undefined : "disabled"} style={{ marginTop: "2.5em" }}>
+      <Panel
+        header={
+          <Button disabled={!authenticated} type="dashed">
+            Create new AMA
+          </Button>
+        }
+        key="1"
+        showArrow={false}
+      >
         <Form
           name="basic"
           initialValues={{ remember: true }}
