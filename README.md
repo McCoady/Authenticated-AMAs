@@ -82,12 +82,12 @@ Add self-policing rules where participants in an AMA can vote to have posts remo
 
 
 ## Techstack
-*GraphQL
-*Apollo
-*Frontend
+* GraphQL
+* Apollo
+* Frontend
  * React
  * antd
  * scaffold-eth/sign-in-with-web3 template
-*Backend
- *Prisma
- *Sqlite
+* Backend
+ * Prisma
+ * Sqlite
