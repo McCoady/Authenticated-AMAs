@@ -60,7 +60,7 @@ function PostView() {
   console.log("post", post);
 
   const createCommentsObj = commentsArray => {
-    return commentsArray.map(({ id: commentId, content, creator, subcomments }) => {
+    return commentsArray.map(({ id: commentId, content, creator, createdAt, subcomments }) => {
       return {
         subcomments: createCommentsObj(subcomments ?? []),
         id: commentId,
@@ -77,10 +77,8 @@ function PostView() {
         author: <a>{`${creator.name} - ${creator.address}`}</a>,
         avatar: <Blockies seed={creator.address.toLowerCase()} size={10} />,
         content: <p>{content}</p>,
-        datetime: (
-          <Tooltip title="date/102/21">
-            <span>date/102/21</span>
-          </Tooltip>
+        datetime: (<p>{`${new Date(createdAt * 1)}`}</p>
+
         ),
       };
     });
