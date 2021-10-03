@@ -51,7 +51,7 @@ const iguanaAddress = "0x6845556EAbdB4a535B98746CB4A2ee4BF79C508e";
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.ropsten; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.mainnet; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = false;
@@ -204,44 +204,6 @@ function App(props) {
     setRoute(window.location.pathname);
   }, [setRoute]);
 
-  async function mintDonut() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(donutAddress, DecentralisedDonuts, signer);
-    try {
-      const mint = await contract.mintToken();
-      await mint.wait();
-      console.log("1 Decentralised Donut minted");
-    } catch (error) {
-      console.error("Transaction Failed. Address already opted in?");
-    }
-  }
-
-  async function mintFictional() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(fictionalAddress, FictionalFinance, signer);
-    try {
-      const mint = await contract.mintToken();
-      await mint.wait();
-      console.log("1 Fictional Finance Token minted");
-    } catch (error) {
-      console.error("Transaction Failed. Address already opted in?");
-    }
-  }
-
-  async function mintIguana() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(iguanaAddress, InterestingIguanas, signer);
-    try {
-      const mint = await contract.mintToken();
-      await mint.wait();
-      console.log("1 Interesting Iguana minted");
-    } catch (error) {
-      console.error("Transaction Failed. Address already opted in?");
-    }
-  }
   const isSigner = injectedProvider && injectedProvider.getSigner && injectedProvider.getSigner()._isSigner;
 
   return (
@@ -304,16 +266,6 @@ function App(props) {
                   About
                 </Link>
               </Menu.Item>
-
-              <Menu.Item key="/faucet">
-                <Link
-                  onClick={() => {
-                    setRoute("/faucet");
-                  }}
-                  to="/faucet"
-                />
-                Mint Test Tokens
-              </Menu.Item>
             </Menu>
 
             <Switch>
@@ -344,25 +296,6 @@ function App(props) {
 
               <Route exact path="/post/:id">
                 <PostView ensProvider={mainnetProvider} />
-              </Route>
-
-              <Route exact path="/faucet">
-                <p style={{ marginTop: 24, fontSize: 20 }}>Mint some dummy ERC721 tokens to test out the site. 🔨</p>
-                <p>
-                  <Button style={{ marginTop: 32 }} type="primary" onClick={mintDonut}>
-                    Mint A Decentralised Donut 🍩
-                  </Button>
-                </p>
-                <p>
-                  <Button style={{ marginTop: 32 }} type="primary" onClick={mintFictional}>
-                    Mint A Fictional Finance Token 💰
-                  </Button>
-                </p>
-                <p>
-                  <Button style={{ marginTop: 32 }} type="primary" onClick={mintIguana}>
-                    Mint An Interesting Iguana 🦎
-                  </Button>
-                </p>
               </Route>
 
               <Route path="/">
