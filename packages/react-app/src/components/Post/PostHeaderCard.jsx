@@ -37,19 +37,23 @@ export default function PostHeaderCard({ post, ensProvider }) {
         </Space>
       </Paragraph>
 
-      <List
-        header={<Text strong>Required Tokens</Text>}
-        itemLayout="horizontal"
-        dataSource={post.requiredTokens}
-        renderItem={item => (
-          <List.Item>
-            <List.Item.Meta
-              title={<a href="//change to link to etherscan">{item.name}</a>}
-              description={item.address}
-            />
-          </List.Item>
-        )}
-      />
+      {post.requiredTokens.length > 0 ? (
+        <List
+          header={<Text strong>Required Tokens</Text>}
+          itemLayout="horizontal"
+          dataSource={post.requiredTokens}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                title={<a href="//change to link to etherscan">{item.name}</a>}
+                description={item.address}
+              />
+            </List.Item>
+          )}
+        />
+      ) : (
+        "No required tokens specified"
+      )}
     </Card>
   );
 }

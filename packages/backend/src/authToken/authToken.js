@@ -32,7 +32,7 @@ async function verifyAuthToken(jwt) {
 const IERC721 = require("../../../hardhat/artifacts/contracts/IERC721.sol/IERC721.json");
 const ERC721 = require("../../../hardhat/artifacts/@openzeppelin/contracts/token/ERC721/ERC721.sol/ERC721.json");
 const INFURA_ID = process.env.INFURA_ID;
-const networkLink = "https://ropsten.infura.io/v3/";
+const networkLink = "https://mainnet.infura.io/v3/";
 
 function getProvider() {
   return new ethers.providers.StaticJsonRpcProvider(networkLink + INFURA_ID);

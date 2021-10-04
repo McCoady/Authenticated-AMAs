@@ -1,5 +1,5 @@
 import React from "react";
-import { message as UiMessagePopUp, Button } from "antd";
+import { message as UiMessagePopUp, Button, Spin } from "antd";
 import { gql, useLazyQuery, useMutation, useApolloClient } from "@apollo/client";
 
 const GET_MESSAGE_QUERY = gql`
@@ -47,7 +47,7 @@ function GraphqlSign({ injectedProvider, userProvider, address, web3Modal, loadW
   });
 
   if (result && result.verifySignedMessage.status) {
-    return null;
+    return <Spin />;
   }
 
   if (web3Modal && !web3Modal.cachedProvider) {

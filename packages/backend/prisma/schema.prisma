@@ -12,7 +12,7 @@ generator client {
 
 model User {
   address String    @id
-  name    String    @unique
+  name    String
   post    Post[]
   Comment Comment[]
 }

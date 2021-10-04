@@ -64,8 +64,7 @@ function DisplayUser({ mainnetProvider, blockExplorer, user }) {
       </section>
     );
   }
-
-  return null;
+  return <Spin />;
 }
 
 export default DisplayUser;

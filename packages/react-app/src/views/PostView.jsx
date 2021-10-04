@@ -10,7 +10,7 @@ import AddressHeader from "../components/Post/AddressHeader";
 import Container from "../components/Layout/Container";
 import { COMPLETE_POST_FRAGMENT } from "../fragments/PostFragments.graphql";
 
-const { Paragraph } = Typography;
+const { Paragraph, Title } = Typography;
 
 const GET_POST_QUERY = gql`
   ${COMPLETE_POST_FRAGMENT}
@@ -103,20 +103,25 @@ function PostView({ ensProvider }) {
   return (
     <Container mt="2em">
       <AddressHeader name={post.creator.name} address={post.creator.address} ensProvider={ensProvider} />
-
-      <List
-        header={<Paragraph strong>Required Tokens</Paragraph>}
-        itemLayout="horizontal"
-        dataSource={post.requiredTokens}
-        renderItem={item => (
-          <List.Item>
-            <List.Item.Meta
-              title={<a href="//change to link to etherscan">{item.name}</a>}
-              description={item.address}
-            />
-          </List.Item>
-        )}
-      />
+      {post.requiredTokens.length > 0 ? (
+        <List
+          header={<Paragraph strong>Required Tokens</Paragraph>}
+          itemLayout="horizontal"
+          dataSource={post.requiredTokens}
+          renderItem={item => (
+            <List.Item>
+              <List.Item.Meta
+                title={<a href="//change to link to etherscan">{item.name}</a>}
+                description={item.address}
+              />
+            </List.Item>
+          )}
+        />
+      ) : (
+        <Title style={{ marginTop: "2em" }} level={4}>
+          No required tokens specified 👀
+        </Title>
+      )}
       <List
         className="comment-list"
         style={{ textAlign: "left" }}
