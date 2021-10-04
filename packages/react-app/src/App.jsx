@@ -82,10 +82,10 @@ function App(props) {
 
   const [injectedProvider, setInjectedProvider] = useState();
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
-  const price = useExchangePrice(targetNetwork, mainnetProvider);
+  // const price = useExchangePrice(targetNetwork, mainnetProvider);
 
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
-  const gasPrice = useGasPrice(targetNetwork, "fast");
+  // const gasPrice = useGasPrice(targetNetwork, "fast");
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
@@ -97,13 +97,13 @@ function App(props) {
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
   // The transactor wraps transactions and provides notificiations
-  const tx = Transactor(userProvider, gasPrice);
+  // const tx = Transactor(userProvider, gasPrice);
 
-  // Faucet Tx can be used to send funds from the faucet
-  const faucetTx = Transactor(localProvider, gasPrice);
+  // // Faucet Tx can be used to send funds from the faucet
+  // const faucetTx = Transactor(localProvider, gasPrice);
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
-  const yourLocalBalance = useBalance(localProvider, address);
+  // const yourLocalBalance = useBalance(localProvider, address);
 
   // Just plug in different 🛰 providers to get your balance on different chains:
   // const yourMainnetBalance = useBalance(mainnetProvider, address);
@@ -146,15 +146,15 @@ function App(props) {
       DEBUG &&
       mainnetProvider &&
       address &&
-      selectedChainId &&
-      yourLocalBalance /* &&  yourMainnetBalance &&readContracts && writeContracts && mainnetDAIContract */
+      selectedChainId
+      // yourLocalBalance /* &&  yourMainnetBalance &&readContracts && writeContracts && mainnetDAIContract */
     ) {
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________");
       console.log("🌎 mainnetProvider", mainnetProvider);
       console.log("🏠 localChainId", localChainId);
       console.log("👩‍💼 selected address:", address);
       console.log("🕵🏻‍♂️ selectedChainId:", selectedChainId);
-      console.log("💵 yourLocalBalance", yourLocalBalance ? formatEther(yourLocalBalance) : "...");
+      // console.log("💵 yourLocalBalance", yourLocalBalance ? formatEther(yourLocalBalance) : "...");
       /* console.log("💵 yourMainnetBalance",yourMainnetBalance?formatEther(yourMainnetBalance):"...") */
       /*  console.log("📝 readContracts",readContracts) */
       /* console.log("🌍 DAI contract on mainnet:",mainnetDAIContract) */
@@ -164,7 +164,7 @@ function App(props) {
     mainnetProvider,
     address,
     selectedChainId,
-    yourLocalBalance /* yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract */,
+    /* yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract */
   ]);
 
   let networkDisplay = "";
