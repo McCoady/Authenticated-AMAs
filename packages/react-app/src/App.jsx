@@ -167,26 +167,26 @@ function App(props) {
     /* yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract */
   ]);
 
-  let networkDisplay = "";
-  if (localChainId && selectedChainId && localChainId != selectedChainId) {
-    networkDisplay = (
-      <div style={{ zIndex: 2, position: "absolute", right: 0, top: 0, padding: 16 }}>
-        <Alert
-          message="⚠️ Wrong Network"
-          description={
-            <div>
-              You have <b>{NETWORK(selectedChainId).name}</b> selected and you need to be on{" "}
-              <b>{NETWORK(localChainId).name}</b>.
-            </div>
-          }
-          type="error"
-          closable={false}
-        />
-      </div>
-    );
-  } else {
-    networkDisplay = <div style={{ color: targetNetwork.color }}>{targetNetwork.name}</div>;
-  }
+  // let networkDisplay = "";
+  // if (localChainId && selectedChainId && localChainId != selectedChainId) {
+  //   networkDisplay = (
+  //     <div style={{ zIndex: 2, position: "absolute", right: 0, top: 0, padding: 16 }}>
+  //       <Alert
+  //         message="⚠️ Wrong Network"
+  //         description={
+  //           <div>
+  //             You have <b>{NETWORK(selectedChainId).name}</b> selected and you need to be on{" "}
+  //             <b>{NETWORK(localChainId).name}</b>.
+  //           </div>
+  //         }
+  //         type="error"
+  //         closable={false}
+  //       />
+  //     </div>
+  //   );
+  // } else {
+  //   networkDisplay = <div style={{ color: targetNetwork.color }}>{targetNetwork.name}</div>;
+  // }
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -209,7 +209,7 @@ function App(props) {
   return (
     <div className="App">
       <Layout>
-        <AppHeader networkDisplay={networkDisplay} />
+        <AppHeader networkDisplay="mainnet" />
 
         <Content>
           {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
